@@ -1,0 +1,14 @@
+cut the bag after about 10 seconds
+
+Step 1
+source ~/pr_ws/install/setup.bash
+ros2 launch rse_gaussian_filters rviz_launch.launch.py
+
+Step 2
+source ~/pr_ws/install/setup.bash
+ros2 launch robot_localization dual_ekf_navsat_rse_kalman.launch.py
+
+Step 3
+source ~/pr_ws/install/setup.bash
+cd /media/carlos/1ECE5E31CE5E0187/shl-1
+ros2 bag play linkou-2023-12-27-2-short --clock

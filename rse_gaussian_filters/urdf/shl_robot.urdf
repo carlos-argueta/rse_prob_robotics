@@ -1,0 +1,359 @@
+
+<?xml version="1.0"?>
+<robot name="sedrad">
+
+   <!-- Materials -->
+   <material name="black">
+      <color rgba="0 0 0 1" />
+   </material>
+
+   <material name="gray">
+      <color rgba="0.2 0.2 0.2 1"/>
+   </material>
+
+   <material name="blue">
+      <color rgba="0.0 0.5 1.0 1"/>
+   </material>
+
+   <material name="zed2_mat">
+      <color rgba="0.25 0.25 0.25 0.99"/>
+   </material>
+
+   <!-- Base Link -->
+   <link name="base_link">
+      <visual>
+         <geometry>
+            <box size="0.81 0.635 0.20"/>
+         </geometry>
+         <origin rpy="0 0 0" xyz="0 0 0.1"/>
+         <material name="black"/>
+      </visual>
+   </link>
+
+   <!-- Base -->
+   <link name="base">
+      <visual>
+         <geometry>
+            <box size="0.54 0.338 0.202"/>
+         </geometry>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <material name="blue"/>
+      </visual>
+   </link>
+   <joint name="base_link_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="base"/>
+      <origin rpy="0 0 0" xyz="-0.027 0 0.35"/>
+   </joint>
+
+   <!-- Armario -->
+   <link name="armario">
+      <visual>
+         <geometry>
+            <box size="0.715 0.49 0.655"/>
+         </geometry>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <material name="black"/>
+      </visual>
+   </link>
+   <joint name="armario_link_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="armario"/>
+      <origin rpy="0 0 0" xyz="-0.025 0 0.8525 "/>
+   </joint>
+
+   
+   <!-- RP LiDAR S1 -->
+   <link name="base_laser">
+      <visual>
+         <origin xyz="0 0 0"/>
+         <geometry>
+            <cylinder length="0.05" radius="0.03"/>
+         </geometry>
+         <material name="black"/>
+      </visual>
+   </link>
+   <joint name="laser_link_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="base_laser"/>
+      <origin rpy="0 0 3.141593" xyz="0.31 0 0.47"/>
+   </joint>
+
+   <!-- Robosense Helios -->
+   <link name="rslidar">
+      <visual>
+         <origin xyz="0 0 0"/>
+         <geometry>
+            <cylinder length="0.1" radius="0.04875"/>
+         </geometry>
+         <material name="gray"/>
+      </visual>
+   </link>
+   <joint name="rslidar_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="rslidar"/>
+      <origin xyz="-0.012 0 1.636"/>
+   </joint>
+
+   <!-- Ultrasounds -->
+   <link name="base_ultrasound0">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound1">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+
+  <link name="base_ultrasound2">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound3">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound4">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound5">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound7">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound8">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound10">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+  
+  <link name="base_ultrasound11">
+    <visual>
+      <origin xyz="0 0 0" />
+      <geometry>
+        <cylinder length="0.05" radius="0.03" />
+      </geometry>
+      <material name="gray" />
+    </visual>
+  </link>
+
+  <joint name="ultrasound0_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound0" />
+    <origin rpy="0 0 0.785" xyz="0.27 0.1834 0.34" />
+  </joint>
+  
+  <joint name="ultrasound1_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound1" />
+    <origin rpy="0 0 0.174" xyz="0.3066 0.083 0.34" />
+  </joint>
+  
+  <joint name="ultrasound2_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound2" />
+    <origin rpy="0 0 -0.174" xyz="0.3066 -0.083 0.34" />
+  </joint>
+  
+  <joint name="ultrasound3_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound3" />
+    <origin rpy="0 0 -0.785" xyz="0.27 -0.1834 0.34" />
+  </joint>
+  
+  <joint name="ultrasound4_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound4" />
+    <origin rpy="0 0 -1.57" xyz="0.109 -0.2275 0.34" />
+  </joint>
+  
+  <joint name="ultrasound5_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound5" />
+    <origin rpy="0 0 -1.57" xyz="-0.151 -0.2494 0.34" />
+  </joint>
+  
+  
+  <joint name="ultrasound7_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound7" />
+    <origin rpy="0 0 3.14" xyz="-0.2951 -0.1185 0.34" />
+  </joint>
+  
+  <joint name="ultrasound8_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound8" />
+    <origin rpy="0 0 3.14" xyz="-0.2951 0.1185 0.34" />
+  </joint>
+  
+  <joint name="ultrasound10_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound10" />
+    <origin rpy="0 0 1.57" xyz="-0.151 0.2494 0.34" />
+  </joint>
+  
+  <joint name="ultrasound11_link_joint" type="fixed">
+    <parent link="base_link" />
+    <child link="base_ultrasound11" />
+    <origin rpy="0 0 1.57" xyz="0.109 0.2275 0.34" />
+  </joint>
+
+   <!-- IMU -->
+   <!-- NOTE: must find correct location -->
+   <link name="base_imu_link">
+      <visual>
+         <origin xyz="0 0 0" />
+         <geometry>
+            <box size="0.06 0.04 0.02" />
+         </geometry>
+         <material name="blue" />
+      </visual>
+   </link>
+   <joint name="imu_link_joint" type="fixed">
+      <parent link="base_link" />
+      <child link="base_imu_link" />
+      <origin xyz="0.3 0 0.27" />
+   </joint>
+
+   <!-- GNSS Heading System-->
+   <!-- GNSS Base-->
+   <link name="gnss_base">
+      <visual>
+         <origin xyz="0 0 0" />
+         <geometry>
+            <box size="0.06 0.055 0.025" />
+         </geometry>
+         <material name="black" />
+      </visual>
+   </link>
+   <joint name="gnss_base_joint" type="fixed">
+      <parent link="armario"/>
+      <child link="gnss_base"/>
+      <origin xyz="-0.5175 0 0.3625"/>
+   </joint>
+
+   <!-- GNSS Heading -->
+   <link name="gnss_heading">
+      <visual>
+         <origin xyz="0 0 0" />
+         <geometry>
+            <box size="0.06 0.055 0.025" />
+         </geometry>
+         <material name="black" />
+      </visual>
+   </link>
+   <joint name="gnss_heading_joint" type="fixed">
+      <parent link="armario"/>
+      <child link="gnss_heading"/>
+      <origin xyz="0.5175 0 0.3625"/>
+   </joint>
+
+   <!-- Zed2 Camera -->
+   <!-- Camera Center -->
+   <link name="zed2_camera_center">
+      <visual>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+         <geometry>
+            <mesh filename="package://rse_gaussian_filters/zed2.stl"/> 
+         </geometry>
+         <material name="zed2_mat"/>
+      </visual>
+   </link>
+   <joint name="zed2_camera_center_joint" type="fixed">
+      <parent link="armario"/>
+      <child link="zed2_camera_center"/>
+      <origin rpy="0.0 0.0 0.0" xyz="0.1 0.0 0.7075"/>
+   </joint>
+
+   <!-- Left Camera -->
+   <link name="zed2_left_camera_frame"/>
+   <joint name="zed2_left_camera_joint" type="fixed">
+      <parent link="zed2_camera_center"/>
+      <child link="zed2_left_camera_frame"/>
+      <origin rpy="0 0 0" xyz="0 0.06 0"/>
+   </joint>
+  
+   <link name="zed2_left_camera_optical_frame"/> 
+   <joint name="zed2_left_camera_optical_joint" type="fixed">
+      <origin rpy="-1.57079632679 0.0 -1.57079632679" xyz="0 0 0"/>
+      <parent link="zed2_left_camera_frame"/>
+      <child link="zed2_left_camera_optical_frame"/>
+   </joint>
+  
+   <!-- Right Camera -->
+   <link name="zed2_right_camera_frame"/>
+   <joint name="zed2_right_camera_joint" type="fixed">
+      <parent link="zed2_camera_center"/>
+      <child link="zed2_right_camera_frame"/>
+      <origin rpy="0 0 0" xyz="0 -0.06 0"/>
+   </joint>
+  
+   <link name="zed2_right_camera_optical_frame"/>
+   <joint name="zed2_right_camera_optical_joint" type="fixed">
+      <origin rpy="-1.57079632679 0.0 -1.57079632679" xyz="0 0 0"/>
+      <parent link="zed2_right_camera_frame"/>
+      <child link="zed2_right_camera_optical_frame"/>
+   </joint>
+  
+   
+
+</robot>
