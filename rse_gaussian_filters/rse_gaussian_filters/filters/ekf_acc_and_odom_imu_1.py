@@ -15,7 +15,7 @@ class KalmanFilter:
 		self.mu = initial_state # Initial state estimate 
 		self.Sigma = initial_covariance # Initial uncertainty
 
-		self.g, self.G = acceleration_motion_model_linearized_1() # The action model to use.
+		self.g, self.G, self.V = acceleration_motion_model_linearized_1() # The action model to use.
 		
 		# Standard deviations of the process or action model noise
 		self.proc_noise_std = np.array(proc_noise_std)

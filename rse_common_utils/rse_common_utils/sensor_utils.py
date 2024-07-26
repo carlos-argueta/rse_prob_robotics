@@ -19,6 +19,13 @@ def odom_to_pose2D(odom):
     yaw = get_yaw_from_quaternion(odom.pose.pose.orientation)
     return (x, y, yaw)
 
+def odom_to_pose3D(odom):
+    x = odom.pose.pose.position.x
+    y = odom.pose.pose.position.y
+    z = odom.pose.pose.position.z
+    rpy = get_rpy_from_quaternion(odom.pose.pose.orientation)
+    return (x, y, z, rpy[0], rpy[1], rpy[2])
+
 def get_normalized_pose2D(initial_pose, current_pose):
     # Check if the initial pose is set
     if initial_pose:
@@ -36,6 +43,31 @@ def get_normalized_pose2D(initial_pose, current_pose):
         return (x, y, yaw)
     else:
         return (0.0, 0.0, 0.0)  # Default pose if initial pose not set
+    
+def get_normalized_pose3D(initial_pose, current_pose):
+    # Check if the initial pose is set
+    if initial_pose:
+        x, y, z, roll, pitch, yaw = current_pose
+        init_x, init_y, init_z, init_roll, init_pitch, init_yaw = initial_pose
+
+        # Adjust position
+        x -= init_x
+        y -= init_y
+        z -= init_z
+
+        # Adjust orientation
+        roll -= init_roll
+        pitch -= init_pitch
+        yaw -= init_yaw
+        
+        # Normalize angles
+        roll = normalize_angle(roll)
+        pitch = normalize_angle(pitch)
+        yaw = normalize_angle(yaw)
+
+        return (x, y, z, roll, pitch, yaw)
+    else:
+        return (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)  # Default pose if initial pose not set
 
 def rotate_pose2D(pose, degrees):
     # Convert degrees to radians for the rotation matrix
@@ -56,10 +88,56 @@ def rotate_pose2D(pose, degrees):
     # Return the new pose with the rotated position and orientation
     return (rotated_position[0], rotated_position[1], rotated_orientation)
 
+def rotate_pose3D(pose, roll_angle, pitch_angle, yaw_angle):
+    # Extract position and orientation from the pose
+    x, y, z, roll, pitch, yaw = pose
+
+    # Convert angles to radians
+    roll_rad = np.deg2rad(roll_angle)
+    pitch_rad = np.deg2rad(pitch_angle)
+    yaw_rad = np.deg2rad(yaw_angle)
+
+    # Rotation matrices for roll, pitch, and yaw
+    R_roll = np.array([
+        [1, 0, 0],
+        [0, np.cos(roll_rad), -np.sin(roll_rad)],
+        [0, np.sin(roll_rad), np.cos(roll_rad)]
+    ])
+    
+    R_pitch = np.array([
+        [np.cos(pitch_rad), 0, np.sin(pitch_rad)],
+        [0, 1, 0],
+        [-np.sin(pitch_rad), 0, np.cos(pitch_rad)]
+    ])
+    
+    R_yaw = np.array([
+        [np.cos(yaw_rad), -np.sin(yaw_rad), 0],
+        [np.sin(yaw_rad), np.cos(yaw_rad), 0],
+        [0, 0, 1]
+    ])
+
+    # Combined rotation matrix
+    R_combined = R_yaw @ R_pitch @ R_roll
+
+    # Apply the rotation to the position part of the pose
+    rotated_position = R_combined.dot(np.array([x, y, z]))
+
+    # Rotate the orientation by the same amount, ensuring it wraps correctly
+    rotated_roll = (roll + roll_rad) % (2 * np.pi)
+    rotated_pitch = (pitch + pitch_rad) % (2 * np.pi)
+    rotated_yaw = (yaw + yaw_rad) % (2 * np.pi)
+
+    # Return the new pose with the rotated position and orientation
+    return (rotated_position[0], rotated_position[1], rotated_position[2], rotated_roll, rotated_pitch, rotated_yaw)
+
 
 def get_yaw_from_quaternion(quaternion):
     rot = PyKDL.Rotation.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
     return rot.GetRPY()[2]
+
+def get_rpy_from_quaternion(quaternion):
+    rot = PyKDL.Rotation.Quaternion(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
+    return rot.GetRPY()
 
 class Odom2DDriftSimulator:
     def __init__(self):

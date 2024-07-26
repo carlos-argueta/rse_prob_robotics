@@ -165,3 +165,32 @@ def acceleration_motion_model_no_control_linearized():
 	return state_transition_function_g, jacobian_of_g_wrt_state_G, jacobian_of_g_wrt_control_V
 
 
+def acceleration_motion_model_3D():
+
+	def state_transition_function_g(mu = None, u = None, delta_t = None):
+		
+		x, y, z, roll, pitch, yaw, v_x, v_y, v_z, w_x, w_y, w_z, a_x, a_y, a_z = mu
+		a_x, a_y, a_z, w_x, w_y, w_z = u
+		
+		g = np.array([
+			x + v_x * delta_t + 0.5 * a_x * delta_t**2,  # x position update
+			y + v_y * delta_t + 0.5 * a_y * delta_t**2,  # y position update
+			z + v_z * delta_t + 0.5 * a_z * delta_t**2,  # z position update
+			roll + w_x * delta_t,      # roll update
+			pitch + w_y * delta_t,      # pitch update
+			yaw + w_z * delta_t,  # yaw update
+		
+			v_x + a_x * delta_t,            # x velocity update
+			v_y + a_y * delta_t,            # y velocity update
+			v_z + a_z * delta_t,            # z velocity update
+			w_x,
+			w_y,
+			w_z,
+			a_x,                            # constant acceleration in x
+			a_y,                            # constant acceleration in y
+			a_z                             # constant acceleration in z
+		])
+
+		return g
+	
+	return state_transition_function_g

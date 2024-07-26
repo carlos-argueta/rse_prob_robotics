@@ -92,5 +92,12 @@ def odometry_imu_observation_model_with_acceleration_motion_model_no_input_linea
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],   	 # a_x = a_x
                     [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])   	 # a_y = a_y
                     
-
 	return observation_function_h, jacobian_of_h_wrt_state_H
+
+
+def odometry_imu_observation_model_with_acceleration_motion_model_3D():
+	def observation_function_h(mu):
+		x, y, z, roll, pitch, yaw, v_x, v_y, v_z, w_x, w_y, w_z, a_x, a_y, a_z = mu
+		return np.array([[x], [y], [z], [roll], [pitch], [yaw], [roll], [pitch], [yaw], [w_x], [w_y], [w_z], [a_x], [a_y], [a_z]])
+	
+	return observation_function_h

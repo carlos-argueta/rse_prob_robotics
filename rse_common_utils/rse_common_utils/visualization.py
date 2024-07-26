@@ -10,7 +10,7 @@ import numpy as np
 import math
 
 class Visualizer:
-    def __init__(self):
+    def __init__(self, title = "Figure 1"):
         self.fig, self.ax = plt.subplots()
         self.gt_line, = self.ax.plot([], [], 'g-', label='Ground Truth')  # Green line for ground truth path
         self.kf_line, = self.ax.plot([], [], 'b-', label='Kalman Filter')  # Red line for Kalman filter path
@@ -33,6 +33,8 @@ class Visualizer:
         # Initialize min and max for x and y
         self.x_min, self.x_max = float('inf'), float('-inf')
         self.y_min, self.y_max = float('inf'), float('-inf')
+
+        plt.title(title)
 
     def update_bounds(self, x, y):
         # Update the bounds with new x and y values
@@ -113,3 +115,58 @@ class Visualizer:
         self.cov_ellipse.angle = angle
         self.cov_ellipse.set_edgecolor(color)
 
+class UKFVisualizer:
+    def __init__(self):
+        self.fig, self.ax = plt.subplots()
+        self.mu_path = []
+        self.sigma_points = []
+
+        # Initialize plot elements
+        self.trajectory_line, = self.ax.plot([], [], 'g-', label='Trajectory')
+        self.sigma_points_plot = self.ax.scatter([], [], c='red', label='Sigma Points', s=1)
+        self.cov_ellipse = Ellipse(xy=(0, 0), width=0, height=0, edgecolor='blue', fc='None', lw=2)
+        self.ax.add_patch(self.cov_ellipse)
+
+        self.ax.legend()
+        self.ax.set_xlabel('X')
+        self.ax.set_ylabel('Y')
+        self.ax.set_title('UKF Visualization')
+
+        plt.ion()
+        plt.show()
+
+    def update(self, mu, Sigma, sigma_points, Wm):
+        # Update trajectory
+        self.mu_path.append(mu[:2])
+        mu_x, mu_y = zip(*self.mu_path)
+        self.trajectory_line.set_data(mu_x, mu_y)
+
+        # Update sigma points
+        self.sigma_points = sigma_points[:, :2]
+        self.sigma_points_plot.set_offsets(self.sigma_points)
+        sizes = Wm * 1000  # Scale weights for visualization
+        self.sigma_points_plot.set_sizes(sizes)
+
+        # Update covariance ellipse
+        self.update_covariance_ellipse(mu[:2], Sigma[:2, :2])
+
+        # Center the plot around the current mu
+        self.ax.set_xlim(mu[0] - 5, mu[0] + 5)
+        self.ax.set_ylim(mu[1] - 5, mu[1] + 5)
+
+        # Draw the updated plot
+        self.fig.canvas.draw_idle()
+        plt.pause(0.01)
+
+    def update_covariance_ellipse(self, mu, cov):
+        eigenvals, eigenvecs = np.linalg.eig(cov)
+        angle = np.rad2deg(np.arctan2(*eigenvecs[:, 0][::-1]))
+        width, height = 2 * np.sqrt(eigenvals)  # 2 standard deviations
+
+        self.cov_ellipse.set_center(mu)
+        self.cov_ellipse.width = width
+        self.cov_ellipse.height = height
+        self.cov_ellipse.angle = angle
+
+    def show(self):
+        plt.show()

@@ -36,7 +36,10 @@ setup(
             'ekf_estimation_7d = rse_gaussian_filters.ekf_7d_state_estimation_no_cmd:main',
             'ekf_estimation_8d = rse_gaussian_filters.ekf_8d_state_estimation_no_cmd:main',
             'ekf_estimation_8d_no_control = rse_gaussian_filters.ekf_8d_state_estimation_no_control_no_cmd:main',
-            
+            'ukf_estimation_3d_v1 = rse_gaussian_filters.ukf_3d_state_estimation_v1_no_cmd:main',
+            'ukf_estimation_3d_v2 = rse_gaussian_filters.ukf_3d_state_estimation_v2_no_cmd:main',
+            'ukf_estimation_7d = rse_gaussian_filters.ukf_7d_state_estimation_no_cmd:main',
+            'ukf_estimation_8d = rse_gaussian_filters.ukf_8d_state_estimation_no_cmd:main',
         ],
     },
 )
