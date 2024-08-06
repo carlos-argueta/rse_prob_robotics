@@ -12,4 +12,15 @@ The different chapters/topics in the book will be roughly organized into ROS 2 p
 
 This repository will be undergoing a lot of changes. The newly added code will be a bit messy at first as I aim at quick implementation, but then it will be refactored to be of better quality. 
 
+If you encounter any problem with the code, please open an Issue and I will try to fix it ASAP. For questions specific to a given implementation please leave a comment within the related article. For general questions or to simply connect, please use any of the contact informations below.
+
+## Contact
+
+Feel free to reach out to me via email or connect with me on social media:
+
+- 📧 Email: [carlos.argueta@soulhackerslabs.com](carlos.argueta@soulhackerslabs.com)
+- [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue)](https://www.linkedin.com/in/carlos-argueta/)
+- [![Twitter](https://img.shields.io/badge/Twitter-Profile-blue)](https://twitter.com/kidargueta)
+
+
 
