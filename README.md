@@ -1,4 +1,4 @@
-# rse_prob_robotics
+# Introduction
 This is the companion repository for my articles discussing the implementation of various algorithms based on the Probabilistic Robotics book.
 
 <div align="center">
@@ -13,6 +13,11 @@ The different chapters/topics in the book will be roughly organized into ROS 2 p
 This repository will be undergoing a lot of changes. The newly added code will be a bit messy at first as I aim at quick implementation, but then it will be refactored to be of better quality. 
 
 If you encounter any problem with the code, please open an Issue and I will try to fix it ASAP. For questions specific to a given implementation please leave a comment within the related article. For general questions or to simply connect, please use any of the contact informations below.
+
+# Gaussian Filters
+Implemented within the package [rse_gaussian_filters](rse_gaussian_filters), this series of articles cover mainly Ch1 - Introduction, Ch2 - Recursive State Estimation, and Ch3 - Gaussian Filters of the book. 
+
+
 
 ## Contact
 
