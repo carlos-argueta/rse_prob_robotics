@@ -14,9 +14,6 @@ This repository will undergo many changes. Newly added code will be a bit messy 
 
 If you encounter any problems with the code, please open an Issue, and I will try to fix it ASAP. For questions specific to a given implementation, please leave a comment on the related article. For general questions or to simply connect, please use any of the contact information below.
 
-# Gaussian Filters
-Implemented within the package [rse_gaussian_filters](rse_gaussian_filters), this series of articles covers mainly chapters 1 through 3 of the book and introduces the Kalman family of filters as well as the Information Filter.
-
 ## Contact
 
 Feel free to reach out to me via email or connect with me on social media:
@@ -25,5 +22,8 @@ Feel free to reach out to me via email or connect with me on social media:
 - [![LinkedIn](https://img.shields.io/badge/LinkedIn-Profile-blue)](https://www.linkedin.com/in/carlos-argueta/)
 - [![Twitter](https://img.shields.io/badge/Twitter-Profile-blue)](https://twitter.com/kidargueta)
 
+
+# Gaussian Filters
+Implemented within the package [rse_gaussian_filters](rse_gaussian_filters), this series of articles covers mainly chapters 1 through 3 of the book and introduces the Kalman family of filters as well as the Information Filter.
 
 
