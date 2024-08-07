@@ -106,7 +106,7 @@ ros2 bag play linkou-2023-12-27-2-med --clock
 ## The Unscented Kalman Filter
 
 ### Article
-[The Unreasonable Power of The Unscented Kalman Filter with ROS 2](https://medium.com/p/d4c97d4b4bb9/edit
+[The Unreasonable Power of The Unscented Kalman Filter with ROS 2](https://medium.com/@kidargueta/the-unreasonable-power-of-the-unscented-kalman-filter-with-ros-2-d4c97d4b4bb9?source=friends_link&sk=c8b0596913165b6cc265797e3c9f2435
 )
 ### Run the code:
 To run the project, you'll need to open three terminals. Follow the steps below:
