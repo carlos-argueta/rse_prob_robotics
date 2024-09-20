@@ -25,6 +25,12 @@ def main(args=None):
     proc_noise_std = [0.002, 0.002, 0.001] 
     obs_noise_std = [1000.02, 1000.02, 1000.01]
 
+    '''
+    beta = 2 is a good choice for Gaussian problems, 
+    kappa = 3 - n where n is the dimension of X is a good choice for kappa
+    and 0 < alpha <= 1 is an appropriate choice for alpha 
+    where a larger value for alpha spreads the sigma points further from the mean.
+    '''
     alpha = 1.0
     beta = 2.0
     kappa = 0.0

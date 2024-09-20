@@ -40,6 +40,7 @@ setup(
             'ukf_estimation_3d_v2 = rse_gaussian_filters.ukf_3d_state_estimation_v2_no_cmd:main',
             'ukf_estimation_7d = rse_gaussian_filters.ukf_7d_state_estimation_no_cmd:main',
             'ukf_estimation_8d = rse_gaussian_filters.ukf_8d_state_estimation_no_cmd:main',
+            'inf_estimation_3d = rse_gaussian_filters.inf_3d_state_estimation_no_cmd:main',
         ],
     },
 )

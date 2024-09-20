@@ -37,8 +37,10 @@ class KalmanFilterNode(Node):
         # Initialize the Kalman Filter
         mu0 = np.zeros(3)
         Sigma0 = np.eye(3)
-        proc_noise_std = [1000.02, 1000.02, 1000.01] 
-        obs_noise_std = [0.002, 0.002, 0.001]
+        #proc_noise_std = [1000.02, 1000.02, 1000.01] 
+        #obs_noise_std = [0.002, 0.002, 0.001]
+        proc_noise_std = [0.002, 0.002, 0.001]
+        obs_noise_std = [1000.02, 1000.02, 1000.01]
         
         self.kf = KalmanFilter(mu0, Sigma0, proc_noise_std, obs_noise_std)
         # Initialize the visualizer to see the results

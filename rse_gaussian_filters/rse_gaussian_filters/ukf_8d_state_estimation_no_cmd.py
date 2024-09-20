@@ -20,9 +20,15 @@ def main(args=None):
     proc_noise_std = [0.1, 0.1, 0.05, 0.1, 0.1, 0.1, 0.1, 0.1] # [x, y, theta, v_x, v_y, w, a_x, a_y]
     obs_noise_std = [100.0, 100.0, 1000.0, 6.853891945200942e-06, 1.0966227112321507e-06, 0.0015387262937311438, 0.0015387262937311438] #[x, y, theta, theta_imu, w, a_x, a_y]
     
+    '''
+    beta = 2 is a good choice for Gaussian problems, 
+    kappa = 3 - n where n is the dimension of X is a good choice for kappa
+    and 0 < alpha <= 1 is an appropriate choice for alpha 
+    where a larger value for alpha spreads the sigma points further from the mean.
+    '''
     alpha = 0.1
     beta = 2.0
-    kappa = 0.0
+    kappa = -5.0
 
     ukf = UnscentedKalmanFilter(mu0, Sigma0, 
                     acceleration_motion_model_linearized_2, 

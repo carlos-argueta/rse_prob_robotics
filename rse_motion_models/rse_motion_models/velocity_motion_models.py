@@ -8,7 +8,6 @@ def velocity_motion_model():
 
 	def control_input_matrix_B(mu, delta_t):
 		theta = mu[2]
-		print(theta, delta_t)
 		B = np.array([
 			[np.cos(theta) * delta_t, 0],
 			[np.sin(theta) * delta_t, 0],
