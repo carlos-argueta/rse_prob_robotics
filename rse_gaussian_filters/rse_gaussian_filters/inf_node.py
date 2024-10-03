@@ -92,7 +92,9 @@ class InformationFilterBaseNode(Node):
 		else:
 			dt = 0.01
 
-		mu, Sigma = self.inf.predict(self.u, dt)
+		inf_vector, inf_matrix = self.inf.predict(self.u, dt)
+		Sigma = np.linalg.inv(inf_matrix)
+		mu = Sigma @ inf_vector
 		
 		# View the results
 		self.visualizer.update(self.normalized_gt_pose, mu, Sigma, step="predict")
@@ -101,10 +103,12 @@ class InformationFilterBaseNode(Node):
 		self.prev_time = curr_time
 
 		self.set_observation()
-		mu, Sigma = self.inf.update(self.z, dt)
+		inf_vector, inf_matrix = self.inf.update(self.z, dt)
+		Sigma = np.linalg.inv(inf_matrix)
+		mu = Sigma @ inf_vector
 		
 		# View the results
-		# print("Updated", mu)
+		print("Updated", mu.shape)
 		self.visualizer.update(self.normalized_gt_pose, mu, Sigma, self.z, step="update")
 
 		self.prev_normalized_pose = self.normalized_pose
@@ -153,7 +157,7 @@ class InformationFilterBaseNode(Node):
 
 class InformationFilterNode(InformationFilterBaseNode):
 	def set_control(self):
-		self.u = np.asarray([self.control.linear.x + 0.1, self.control.angular.z])
+		self.u = np.asarray([self.control.linear.x, self.control.angular.z])
 
 		# Get the control inputs for odometry model
 		''' if self.prev_pose_set:

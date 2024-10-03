@@ -45,7 +45,7 @@ class KalmanFilter:
 
 	def update(self, z, dt):
 		# Compute the Kalman gain (K)
-		K = self.Sigma @ self.H().T @ np.linalg.inv(self.H() @ self.Sigma @ self.H().T + self.Q)
+		K = self.Sigma @ self.H(self.mu).T @ np.linalg.inv(self.H(self.mu) @ self.Sigma @ self.H(self.mu).T + self.Q)
 		
 		# Update state estimate (mu) 
 		innovation = z - self.h(self.mu)
@@ -55,7 +55,7 @@ class KalmanFilter:
 
 		# Update covariance (Sigma)
 		I = np.eye(len(K)) # I = np.identity(len(self.mu_t))
-		self.Sigma = (I - K @ self.H()) @ self.Sigma
+		self.Sigma = (I - K @ self.H(self.mu)) @ self.Sigma
 
 		self.prev_theta = self.mu[2]
 

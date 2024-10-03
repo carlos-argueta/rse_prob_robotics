@@ -7,23 +7,23 @@ import rclpy
 
 import numpy as np
 
-from rse_motion_models.velocity_motion_models import velocity_motion_model
-from rse_observation_models.odometry_observation_models import odometry_observation_model
+from rse_motion_models.velocity_motion_models import velocity_motion_model_linearized_1
+from rse_observation_models.odometry_observation_models import odometry_observation_model_linearized
 
-from .filters.inf import InformationFilter
+
+from .filters.einf import ExtendedInformationFilter
 from .inf_node import InformationFilterNode
 
 def main(args=None):
 	# Initialize the Kalman Filter
 	mu0 = np.zeros(3)
 	Sigma0 = np.eye(3)
-	proc_noise_std = [0.002, 0.002, 0.001] 
-	obs_noise_std = [10.02, 10.02, 10.01]
-
+	proc_noise_std = [10.002, 10.002, 10.001] 
+	obs_noise_std = [1.02, 1.02, 1.01]
 	
-	inf = InformationFilter(mu0, Sigma0,
-				velocity_motion_model,
-				odometry_observation_model,
+	inf = ExtendedInformationFilter(mu0, Sigma0,
+				velocity_motion_model_linearized_1,
+				odometry_observation_model_linearized,
 				proc_noise_std = proc_noise_std,
 				obs_noise_std = obs_noise_std)
 
