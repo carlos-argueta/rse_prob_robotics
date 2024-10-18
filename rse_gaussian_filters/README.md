@@ -197,7 +197,7 @@ ros2 bag play linkou-2023-12-27-2-med --clock
 ```
 ### Demo Video
 <div align="center">
-  <a href="[https://youtu.be/55coLbl0HFs](https://youtu.be/5CaBiRmkH_s)" target="_blank">
-    
+  <a href="[https://youtu.be/5CaBiRmkH_s](https://youtu.be/5CaBiRmkH_s)" target="_blank">
+    <img src="https://img.youtube.com/vi/5CaBiRmkH_s/0.jpg" alt="Watch the video" style="width:80%;height:auto;">
   </a>
 </div>
