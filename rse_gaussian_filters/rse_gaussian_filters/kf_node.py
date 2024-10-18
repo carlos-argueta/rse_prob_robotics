@@ -15,43 +15,54 @@ from rse_common_utils.sensor_utils import odom_to_pose2D, get_normalized_pose2D,
 from rse_common_utils.helper_utils import normalize_angle
 from rse_common_utils.visualization import Visualizer
 
+from .filters.kf import KalmanFilter
+from .filters.ekf import ExtendedKalmanFilter
+from .filters.ukf import UnscentedKalmanFilter
 
-class UnscentedKalmanFilterBaseNode(Node):
+
+class KalmanFilterBaseNode(Node):
     def __init__(self, kf):
         super().__init__('kalman_filter_node')
 
         self.odom_gt_subscription = self.create_subscription(
             Odometry,
-            'odom', #'wheel_odom',  # Ground Truth
+            'odom',  # 'wheel_odom',  # Ground Truth
             self.odom_gt_callback,
             10)
 
         self.odom_raw_subscription = self.create_subscription(
             Odometry,
-            'odom_raw', #'odom_raw',         # For controls
+            'odom_raw',  # 'odom_raw',         # For controls
             self.odom_raw_callback,
             10)
 
-
         self.imu_subscriber = self.create_subscription(
             Imu,
-            '/imu/data_raw', #'/imu',
+            '/imu/data_raw',  # '/imu',
             self.imu_callback,
             10)
 
         self.kf = kf
         
         # Initialize the visualizer to see the results
-        self.visualizer = Visualizer("alpha = %s, beta = %s, kappa = %s"%(self.kf.alpha, self.kf.beta, self.kf.kappa))
-        
+        if isinstance(self.kf, (UnscentedKalmanFilter)):
+            self.visualizer = Visualizer("alpha = %s, beta = %s, kappa = %s"%(self.kf.alpha, self.kf.beta, self.kf.kappa))
+        else:
+            self.visualizer = Visualizer()
+
+        # Create a ROS 2 timer for the visualizer updates
+        self.visualizer_timer = self.create_timer(0.1, self.update_visualizer)
+
+        self.mu = None
+        self.Sigma = None
         self.u = None
         self.z = None
-        self.prev_time = None # previous prediction time, used to compute the delta_t
+        self.prev_time = None  # previous prediction time, used to compute the delta_t
 
         # Variables to normalize the pose (always start at the origin)
         self.initial_pose = None
         self.normalized_pose = (0.0, 0.0, 0.0) 
-        
+
         # IMU data
         self.initial_imu_theta = None
         self.normalized_imu_theta = 0.0
@@ -65,10 +76,18 @@ class UnscentedKalmanFilterBaseNode(Node):
         self.initial_gt_pose = None
         self.normalized_gt_pose = (0.0, 0.0, 0.0)
 
-        print("UKF ready!")
+        print("KF ready!")
+
+    def update_visualizer(self):
+        # Call the visualizer update asynchronously
+        if self.mu is not None and self.Sigma is not None:
+            if self.z is not None:
+                self.visualizer.update(self.normalized_gt_pose, self.mu, self.Sigma, self.z, step="update")
+            else:
+                self.visualizer.update(self.normalized_gt_pose, self.mu, self.Sigma, step="predict")
 
     def odom_raw_callback(self, msg):
-        
+
         # Set the initial pose
         if not self.initial_pose:
             initial_pose = odom_to_pose2D(msg)  
@@ -81,10 +100,10 @@ class UnscentedKalmanFilterBaseNode(Node):
         self.normalized_pose = np.array(get_normalized_pose2D(self.initial_pose, rotated_pose))
 
         self.control = msg.twist.twist
-        
+
         # Get the control inputs for velocity model
         self.set_control()
-        
+
         # Compute dt
         curr_time = self.get_clock().now().nanoseconds
         if self.prev_time:
@@ -92,20 +111,23 @@ class UnscentedKalmanFilterBaseNode(Node):
         else:
             dt = 0.01
 
-        mu, Sigma = self.kf.predict(self.u, dt)
-        
-        # View the results
-        self.visualizer.update(self.normalized_gt_pose, mu, Sigma, step="predict")
-        # print("Predicted", mu)
-       
+        if isinstance(self.kf, (KalmanFilter, ExtendedKalmanFilter, UnscentedKalmanFilter)):
+            self.mu, self.Sigma = self.kf.predict(self.u, dt)
+        else:
+            inf_vector, inf_matrix = self.kf.predict(self.u, dt)
+            self.Sigma = np.linalg.inv(inf_matrix)
+            self.mu = self.Sigma @ inf_vector
+
         self.prev_time = curr_time
 
         self.set_observation()
-        mu, Sigma = self.kf.update(self.z, dt)
-        
-        # View the results
-        # print("Updated", mu)
-        self.visualizer.update(self.normalized_gt_pose, mu, Sigma, self.z, step="update")
+
+        if isinstance(self.kf, (KalmanFilter, ExtendedKalmanFilter, UnscentedKalmanFilter)):
+            self.mu, self.Sigma = self.kf.update(self.z, dt)
+        else:
+            inf_vector, inf_matrix = self.kf.update(self.z, dt)
+            self.Sigma = np.linalg.inv(inf_matrix)
+            self.mu = self.Sigma @ inf_vector
 
         self.prev_normalized_pose = self.normalized_pose
 
@@ -151,7 +173,8 @@ class UnscentedKalmanFilterBaseNode(Node):
     def set_observation(self):
         raise NotImplementedError("This function has to be implemented by a child class")
 
-class UnscentedKalmanFilterNode(UnscentedKalmanFilterBaseNode):
+
+class KalmanFilterNode(KalmanFilterBaseNode):
     def set_control(self):
         self.u = np.asarray([self.control.linear.x + 0.1, self.control.angular.z])
 
@@ -167,7 +190,8 @@ class UnscentedKalmanFilterNode(UnscentedKalmanFilterBaseNode):
     def set_observation(self):
         self.z = self.normalized_pose
 
-class UnscentedKalmanFilterFusionNode(UnscentedKalmanFilterNode):
+
+class KalmanFilterFusionNode(KalmanFilterNode):
 
     def set_observation(self):
         self.z = np.array([[self.normalized_pose[0]], [self.normalized_pose[1]], [self.normalized_pose[2]], [self.normalized_imu_theta], [self.imu_w], [self.imu_a_x], [self.imu_a_y]])

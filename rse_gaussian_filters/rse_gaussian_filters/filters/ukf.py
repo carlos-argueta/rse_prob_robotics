@@ -8,6 +8,8 @@ import numpy as np
 import math
 
 from scipy.linalg import cholesky
+from scipy.linalg import svd
+
 
 from rse_common_utils.helper_utils import normalize_angle
 
@@ -89,6 +91,20 @@ class UnscentedKalmanFilter:
 			sigmas[self.n + k + 1] = self.subtract_fn(self.mu, self.sqrt_fn((self.n + self.lambda_) * self.Sigma)[k])
 
 		return sigmas
+	
+	def compute_sigma_points_svd(self):
+		sigmas = np.zeros((self.num_sigmas, self.n))
+		sigmas[0] = self.mu
+		# SVD returns U, S, V where U * S * V^T = covariance matrix
+		U, S, Vt = svd((self.n + self.lambda_) * self.Sigma)
+		sqrt_sigma = U @ np.diag(np.sqrt(S))
+
+		for k in range(self.n):
+			sigmas[k + 1]   = np.subtract(self.mu, -sqrt_sigma[:, k]) 
+			sigmas[self.n + k + 1] = np.subtract(self.mu, sqrt_sigma[:, k])
+
+		return sigmas
+
 
 	def predict(self, u, dt):
 		# Step 1: Compute Sigma points and their weights

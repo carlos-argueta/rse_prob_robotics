@@ -11,7 +11,7 @@ from rse_motion_models.velocity_motion_models import velocity_motion_model_linea
 from rse_observation_models.odometry_observation_models import odometry_observation_model_linearized
 
 from .filters.ukf import UnscentedKalmanFilter 
-from .ukf_node import UnscentedKalmanFilterNode
+from .kf_node import KalmanFilterNode as UnscentedKalmanFilterNode
 
 def main(args=None):
     # Initialize the Kalman Filter
@@ -20,7 +20,13 @@ def main(args=None):
     proc_noise_std = [0.002, 0.002, 0.001] 
     obs_noise_std = [1000.02, 1000.02, 1000.01]
 
-    alpha = 0.1
+    '''
+    beta = 2 is a good choice for Gaussian problems, 
+    kappa = 3 - n where n is the dimension of X is a good choice for kappa
+    and 0 < alpha <= 1 is an appropriate choice for alpha 
+    where a larger value for alpha spreads the sigma points further from the mean.
+    '''
+    alpha = 1.0
     beta = 2.0
     kappa = 0.0
 

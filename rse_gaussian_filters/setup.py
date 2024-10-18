@@ -30,16 +30,24 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'kf_estimation = rse_gaussian_filters.kf_3d_state_estimation_no_cmd:main',
+            'kf_estimation_3d = rse_gaussian_filters.kf_3d_state_estimation_no_cmd:main',
+
             'ekf_estimation_3d_v1 = rse_gaussian_filters.ekf_3d_state_estimation_v1_no_cmd:main',
             'ekf_estimation_3d_v2 = rse_gaussian_filters.ekf_3d_state_estimation_v2_no_cmd:main',
             'ekf_estimation_7d = rse_gaussian_filters.ekf_7d_state_estimation_no_cmd:main',
             'ekf_estimation_8d = rse_gaussian_filters.ekf_8d_state_estimation_no_cmd:main',
-            'ekf_estimation_8d_no_control = rse_gaussian_filters.ekf_8d_state_estimation_no_control_no_cmd:main',
+
             'ukf_estimation_3d_v1 = rse_gaussian_filters.ukf_3d_state_estimation_v1_no_cmd:main',
             'ukf_estimation_3d_v2 = rse_gaussian_filters.ukf_3d_state_estimation_v2_no_cmd:main',
             'ukf_estimation_7d = rse_gaussian_filters.ukf_7d_state_estimation_no_cmd:main',
             'ukf_estimation_8d = rse_gaussian_filters.ukf_8d_state_estimation_no_cmd:main',
+
+            'inf_estimation_3d = rse_gaussian_filters.inf_3d_state_estimation_no_cmd:main',
+            
+            'einf_estimation_3d_v1 = rse_gaussian_filters.einf_3d_state_estimation_v1_no_cmd:main',
+            'einf_estimation_3d_v2 = rse_gaussian_filters.einf_3d_state_estimation_v2_no_cmd:main',
+            'einf_estimation_7d = rse_gaussian_filters.einf_7d_state_estimation_no_cmd:main',
+            'einf_estimation_8d = rse_gaussian_filters.einf_8d_state_estimation_no_cmd:main',
         ],
     },
 )

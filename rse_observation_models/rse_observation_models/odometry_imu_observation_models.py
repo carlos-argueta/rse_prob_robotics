@@ -48,7 +48,7 @@ def odometry_imu_observation_model_with_acceleration_motion_model_linearized_1()
 		x, y, theta, v, w, ax, ay = mu
 		return np.array([[x], [y], [theta], [theta], [w], [ax], [ay]])
 	
-	def jacobian_of_h_wrt_state_H():
+	def jacobian_of_h_wrt_state_H(mu):
 		return np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],    
                     [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],   	     
                     [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0],   	     
@@ -65,7 +65,7 @@ def odometry_imu_observation_model_with_acceleration_motion_model_linearized_2()
 		x, y, theta, v_x, v_y, w, ax, ay = mu
 		return np.array([[x], [y], [theta], [theta], [w], [ax], [ay]])
 	
-	def jacobian_of_h_wrt_state_H():
+	def jacobian_of_h_wrt_state_H(mu):
 		return np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],       
                     [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   	     
                     [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],   	     
@@ -83,7 +83,7 @@ def odometry_imu_observation_model_with_acceleration_motion_model_no_input_linea
 		x, y, theta, vx, vy, w, ax, ay = mu
 		return np.array([[x], [y], [theta], [theta], [w], [ax], [ay]])
 	
-	def jacobian_of_h_wrt_state_H():
+	def jacobian_of_h_wrt_state_H(mu):
 		return np.array([[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   # x = x
                     [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],   	 # y = y
                     [0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0],   	 # theta = theta
