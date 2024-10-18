@@ -12,7 +12,7 @@ from rse_observation_models.odometry_observation_models import odometry_observat
 
 
 from .filters.ukf import UnscentedKalmanFilter
-from .ukf_node import UnscentedKalmanFilterNode
+from .kf_node import KalmanFilterNode as UnscentedKalmanFilterNode
 
      
 def main(args=None):

@@ -11,7 +11,7 @@ from rse_motion_models.velocity_motion_models import velocity_motion_model_linea
 from rse_observation_models.odometry_observation_models import odometry_observation_model_linearized
 
 from .filters.ukf import UnscentedKalmanFilter 
-from .ukf_node import UnscentedKalmanFilterNode
+from .kf_node import KalmanFilterNode as UnscentedKalmanFilterNode
 
 def main(args=None):
     # Initialize the Kalman Filter

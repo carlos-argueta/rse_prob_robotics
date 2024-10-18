@@ -11,7 +11,7 @@ from rse_motion_models.velocity_motion_models import velocity_motion_model
 from rse_observation_models.odometry_observation_models import odometry_observation_model
 
 from .filters.inf import InformationFilter
-from .inf_node import InformationFilterNode
+from .kf_node import KalmanFilterNode as InformationFilterNode
 
 def main(args=None):
 	# Initialize the Kalman Filter

@@ -12,7 +12,8 @@ from rse_observation_models.odometry_observation_models import odometry_observat
 
 
 from .filters.einf import ExtendedInformationFilter
-from .inf_node import InformationFilterNode
+from .kf_node import KalmanFilterNode as InformationFilterNode
+
 
 def main(args=None):
 	# Initialize the Kalman Filter
@@ -20,7 +21,7 @@ def main(args=None):
 	Sigma0 = np.eye(3)
 	proc_noise_std = [10.002, 10.002, 10.001] 
 	obs_noise_std = [1.02, 1.02, 1.01]
-	
+
 	inf = ExtendedInformationFilter(mu0, Sigma0,
 				velocity_motion_model_linearized_1,
 				odometry_observation_model_linearized,

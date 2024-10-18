@@ -11,7 +11,7 @@ from rse_motion_models.acceleration_motion_models import acceleration_motion_mod
 from rse_observation_models.odometry_imu_observation_models import odometry_imu_observation_model_with_acceleration_motion_model_linearized_2
 
 from .filters.einf import ExtendedInformationFilter
-from .inf_node import ExtendedInformationFilterFusionNode 
+from .kf_node import KalmanFilterFusionNode as ExtendedInformationFilterFusionNode 
 
 def main(args=None):
 	# Initialize the Kalman Filter

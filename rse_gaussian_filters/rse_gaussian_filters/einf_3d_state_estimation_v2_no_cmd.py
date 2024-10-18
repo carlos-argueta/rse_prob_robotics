@@ -12,7 +12,7 @@ from rse_observation_models.odometry_observation_models import odometry_observat
 
 
 from .filters.einf import ExtendedInformationFilter
-from .inf_node import InformationFilterNode
+from .kf_node import KalmanFilterNode as InformationFilterNode
 
 def main(args=None):
 	# Initialize the Kalman Filter

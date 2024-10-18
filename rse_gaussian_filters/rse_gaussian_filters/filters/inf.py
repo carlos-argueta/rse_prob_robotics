@@ -18,6 +18,8 @@ class InformationFilter:
 		# Process noise covariance (R)
 		self.R = np.diag(self.proc_noise_std ** 2)  # process noise covariance
 
+		self.R_inv = np.linalg.inv(self.R)  # Inverse of process noise covariance
+
 		# Observation model (C)
 		self.C = observation_model() # The observation model to use
 
@@ -26,6 +28,8 @@ class InformationFilter:
 		# Observation noise covariance (Q)
 		self.Q = np.diag(self.obs_noise_std ** 2)
 
+		self.Q_inv = np.linalg.inv(self.Q) 
+
 		self.exec_times_pred = []
 		self.exec_times_upd = []
 				
@@ -33,12 +37,28 @@ class InformationFilter:
 		
 		# Perform the prediction step
 		start_time = time.time()
+		'''
 		Sigma = np.linalg.inv(self.inf_matrix)
 		mu = Sigma @ self.inf_vector
 		
 		self.inf_matrix = np.linalg.inv(self.A() @ Sigma @ self.A().T + self.R)
 		self.inf_vector = self.inf_matrix @ (self.A() @ Sigma @ self.inf_vector + self.B(mu, dt) @ u)
+		'''
+
 		
+		Sigma = np.linalg.inv(self.inf_matrix)  # Inverse of the information matrix to get Sigma
+		mu = Sigma @ self.inf_vector  # State mean
+
+		A = self.A()  # State transition matrix
+		
+		# Apply the matrix inversion lemma
+		temp = np.linalg.inv(Sigma + A.T @ self.R_inv @ A)  # (Omega_t-1 + A_t^T R_t^{-1} A_t)^{-1}
+		self.inf_matrix = self.R_inv - self.R_inv @ A @ temp @ A.T @ self.R_inv  # Matrix inversion lemma
+
+		# Update the information vector
+		self.inf_vector = self.inf_matrix @ (A @ Sigma @ self.inf_vector + self.B(mu, dt) @ u)
+		
+
 		end_time = time.time()
 		execution_time = end_time - start_time
 		self.exec_times_pred.append(execution_time)
@@ -46,18 +66,13 @@ class InformationFilter:
 
 		print("Average exec time pred: ", sum(self.exec_times_pred) / len(self.exec_times_pred))
 
-		# Predict state estimate (mu) 
-		# self.mu = self.A() @ self.mu + self.B(self.mu, dt) @ u
-		# Predict covariance (Sigma)
-		# self.Sigma = self.A() @ self.Sigma @ self.A().T + self.R
-
 		return self.inf_vector, self.inf_matrix
 
 	def update(self, z, dt):
 		start_time = time.time()
-		Q_inv = np.linalg.inv(self.Q) 
-		self.inf_matrix = self.inf_matrix + self.C().T @ Q_inv @ self.C()
-		self.inf_vector = self.inf_vector + self.C().T @ Q_inv @ z
+		
+		self.inf_matrix = self.inf_matrix + self.C().T @ self.Q_inv @ self.C()
+		self.inf_vector = self.inf_vector + self.C().T @ self.Q_inv @ z
 
 		end_time = time.time()
 		execution_time = end_time - start_time
@@ -66,13 +81,6 @@ class InformationFilter:
 
 		print("Average exec time update: ", sum(self.exec_times_upd) / len(self.exec_times_upd))
 		
-		# Compute the Kalman gain (K)
-		# K = self.Sigma @ self.C().T @ np.linalg.inv(self.C() @ self.Sigma @ self.C().T + self.Q)
-		# Update state estimate (mu) 
-		# self.mu = self.mu + K @ (z - self.C() @ self.mu)
-		# Update covariance (Sigma)
-		# self.Sigma = (np.eye(len(K)) - K @ self.C() @ self.Sigma)
-
 		return self.inf_vector, self.inf_matrix
 	
 

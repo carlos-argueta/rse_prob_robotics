@@ -93,7 +93,6 @@ class UnscentedKalmanFilter:
 		return sigmas
 	
 	def compute_sigma_points_svd(self):
-		print("Using SVD")
 		sigmas = np.zeros((self.num_sigmas, self.n))
 		sigmas[0] = self.mu
 		# SVD returns U, S, V where U * S * V^T = covariance matrix
@@ -110,7 +109,7 @@ class UnscentedKalmanFilter:
 	def predict(self, u, dt):
 		# Step 1: Compute Sigma points and their weights
 		# Compute Sigma points
-		sigmas = self.compute_sigma_points_svd()
+		sigmas = self.compute_sigma_points()
 		
 		# Step 2: Pass Sigma points through non-linear function g
 		sigmas_star = np.zeros((self.num_sigmas, self.n))
@@ -142,7 +141,7 @@ class UnscentedKalmanFilter:
 		z = z.squeeze()
 		
 		# Step 1: Update Sigma points
-		sigmas = self.compute_sigma_points_svd()
+		sigmas = self.compute_sigma_points()
 
 		# Step 2: Pass Sigma points through non-linear function h
 		sigmas_h = np.zeros((self.num_sigmas, np.size(z)))
