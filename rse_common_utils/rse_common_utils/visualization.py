@@ -13,7 +13,7 @@ class Visualizer:
     def __init__(self, title = "Figure 1"):
         self.fig, self.ax = plt.subplots()
         self.gt_line, = self.ax.plot([], [], 'g-', label='Ground Truth')  # Green line for ground truth path
-        self.kf_line, = self.ax.plot([], [], 'b-', label='Information Filter')  # Red line for Kalman filter path
+        self.kf_line, = self.ax.plot([], [], 'b-', label='Kalman/Information Filter')  # Red line for Kalman filter path
         self.obs_line, = self.ax.plot([], [], 'r-', label='Observation')
         self.ax.legend()
 
