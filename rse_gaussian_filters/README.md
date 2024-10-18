@@ -41,7 +41,7 @@ ros2 run rse_gaussian_filters kf_estimation
 ```
 
 #### Terminal 3
-First download the ROS 2 bag with all of the data from [this link](https://www.dropbox.com/scl/fi/tdxin6bzw01siucdv3kgv/linkou-2023-12-27-2-med.zip?rlkey=rcz93bhozjsdymcpn5dqz6rly&dl=0).
+First, download the ROS 2 bag with all of the data from [this link](https://www.dropbox.com/scl/fi/tdxin6bzw01siucdv3kgv/linkou-2023-12-27-2-med.zip?rlkey=rcz93bhozjsdymcpn5dqz6rly&dl=0).
 Make sure to decompress the file before using it.
 ```bash
 # Navigate to where you extracted the ROS 2 bag and then run it with:
@@ -89,7 +89,7 @@ ros2 run rse_gaussian_filters ekf_estimation_8d
 ```
 
 #### Terminal 3
-First download the ROS 2 bag with all of the data from [this link](https://www.dropbox.com/scl/fi/tdxin6bzw01siucdv3kgv/linkou-2023-12-27-2-med.zip?rlkey=rcz93bhozjsdymcpn5dqz6rly&dl=0).
+First, download the ROS 2 bag with all of the data from [this link](https://www.dropbox.com/scl/fi/tdxin6bzw01siucdv3kgv/linkou-2023-12-27-2-med.zip?rlkey=rcz93bhozjsdymcpn5dqz6rly&dl=0).
 Make sure to decompress the file before using it.
 ```bash
 # Navigate to where you extracted the ROS 2 bag and then run it with:
@@ -137,7 +137,7 @@ ros2 run rse_gaussian_filters ukf_estimation_8d
 ```
 
 #### Terminal 3
-First download the ROS 2 bag with all of the data from [this link](https://www.dropbox.com/scl/fi/tdxin6bzw01siucdv3kgv/linkou-2023-12-27-2-med.zip?rlkey=rcz93bhozjsdymcpn5dqz6rly&dl=0).
+First, download the ROS 2 bag with all of the data from [this link](https://www.dropbox.com/scl/fi/tdxin6bzw01siucdv3kgv/linkou-2023-12-27-2-med.zip?rlkey=rcz93bhozjsdymcpn5dqz6rly&dl=0).
 Make sure to decompress the file before using it.
 ```bash
 # Navigate to where you extracted the ROS 2 bag and then run it with:
@@ -152,4 +152,52 @@ ros2 bag play linkou-2023-12-27-2-med --clock
 </div>
 
 ## The Information Filter
-Coming Soon!
+
+### Article
+[The Information Filter: The Dual of the Kalman Filter You Didn't Know About](https://medium.com/@kidargueta/the-unreasonable-power-of-the-unscented-kalman-filter-with-ros-2-d4c97d4b4bb9?source=friends_link&sk=c8b0596913165b6cc265797e3c9f2435
+)
+### Run the code:
+To run the project, you'll need to open three terminals. Follow the steps below:
+#### Terminal 1
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch rse_gaussian_filters rviz_launch.launch.py
+```
+
+#### Terminal 2
+Run one of the following commands depending on the version of the Unscented Kalman Filter you want to try. There won’t be any output at first, until you play the ROS 2 bag.
+```bash
+source ~/ros2_ws/install/setup.bash
+
+# Run only one of the lines below
+
+# Linear IF
+ros2 run rse_gaussian_filters inf_estimation_3d
+
+# EIF 3D state, basic velocity model
+ros2 run rse_gaussian_filters einf_estimation_3d_v1
+
+# 3D state, advanced velocity model
+ros2 run rse_gaussian_filters einf_estimation_3d_v2
+
+# 7D state, acceleration model, sensor fusion
+ros2 run rse_gaussian_filters einf_estimation_7d
+
+# 8D state, acceleration model, sensor fusion
+ros2 run rse_gaussian_filters einf_estimation_8d
+```
+
+#### Terminal 3
+First, download the ROS 2 bag with all of the data from [this link](https://www.dropbox.com/scl/fi/tdxin6bzw01siucdv3kgv/linkou-2023-12-27-2-med.zip?rlkey=rcz93bhozjsdymcpn5dqz6rly&dl=0).
+Make sure to decompress the file before using it.
+```bash
+# Navigate to where you extracted the ROS 2 bag and then run it with:
+ros2 bag play linkou-2023-12-27-2-med --clock
+
+```
+### Demo Video
+<div align="center">
+  <a href="https://youtu.be/55coLbl0HFs" target="_blank">
+    <img src="https://img.youtube.com/vi/55coLbl0HFs/0.jpg" alt="Watch the video" style="width:80%;height:auto;">
+  </a>
+</div>
