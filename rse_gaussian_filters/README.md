@@ -154,7 +154,7 @@ ros2 bag play linkou-2023-12-27-2-med --clock
 ## The Information Filter
 
 ### Article
-[The Information Filter: The Dual of the Kalman Filter You Didn't Know About](https://medium.com/@kidargueta/the-unreasonable-power-of-the-unscented-kalman-filter-with-ros-2-d4c97d4b4bb9?source=friends_link&sk=c8b0596913165b6cc265797e3c9f2435
+[The Information Filter: The Dual of the Kalman Filter You Didn't Know About](https://soulhackerslabs.com/the-information-filter-the-dual-of-the-kalman-filter-you-didnt-know-about-249182abaea0?sk=77aff6b0725a2c4d96087928ddb6d8a3
 )
 ### Run the code:
 To run the project, you'll need to open three terminals. Follow the steps below:
