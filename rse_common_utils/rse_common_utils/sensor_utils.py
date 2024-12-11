@@ -6,6 +6,8 @@
 import numpy as np
 import PyKDL
 
+import copy
+
 from .helper_utils import normalize_angle
 
 # Function to add Gaussian noise to odometry data
@@ -164,3 +166,68 @@ class Odom2DDriftSimulator:
         drifted_odom = odom + self.error_accumulation + random_walk
 
         return drifted_odom
+    
+
+##### Mapping Utils #####
+
+def lidar_scan(msgScan):
+    """
+    Convert LaserScan msg to array
+    """
+    distances = np.array([])
+    angles = np.array([])
+    information = np.array([])
+    
+    for i in range(len(msgScan.ranges)):
+        # angle calculation
+        ang = msgScan.angle_min + i * msgScan.angle_increment
+
+        # distance calculation
+        if ( msgScan.ranges[i] > msgScan.range_max ):
+            dist = msgScan.range_max
+        elif ( msgScan.ranges[i] < msgScan.range_min ):
+            dist = msgScan.range_min
+        else:
+            dist = msgScan.ranges[i]
+
+        #dist = msgScan.ranges[i]
+
+        # smaller the distance, bigger the information (measurement is more confident)
+        inf = ((msgScan.range_max - dist) / msgScan.range_max) ** 2 
+
+        if i % 10 == 0:
+
+            distances = np.append(distances, dist)
+            angles = np.append(angles, normalize_angle(ang))
+            information = np.append(information, inf)
+
+    # distances in [m], angles in [radians], information [0-1]
+    return ( distances, angles, information,  msgScan.range_max, msgScan.angle_max - msgScan.angle_min)
+
+
+def map_shift(grid_map, x_shift, y_shift):
+    tmp_grid_map = copy.deepcopy(grid_map.data)
+
+    for ix in range(grid_map.width):
+        for iy in range(grid_map.height):
+            nix = ix + x_shift
+            niy = iy + y_shift
+
+            if 0 <= nix < grid_map.width and 0 <= niy < grid_map.height:
+                grid_map.data[ix + x_shift][iy + y_shift] =\
+                    tmp_grid_map[ix][iy]
+
+    return grid_map
+
+
+def predict_range(grid_map, pose, angle):
+    """
+    Predict the range from the robot to the nearest obstacle in a given direction.
+    """
+    x, y, theta = pose
+    dx = np.cos(theta + angle)
+    dy = np.sin(theta + angle)
+
+    # Ray tracing to find the first occupied cell
+    range_predicted = grid_map.trace_ray(x, y, dx, dy)
+    return range_predicted
