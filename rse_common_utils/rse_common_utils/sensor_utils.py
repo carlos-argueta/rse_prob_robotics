@@ -195,7 +195,7 @@ def lidar_scan(msgScan):
         # smaller the distance, bigger the information (measurement is more confident)
         inf = ((msgScan.range_max - dist) / msgScan.range_max) ** 2 
 
-        if i % 10 == 0:
+        if i % 5 == 0:
 
             distances = np.append(distances, dist)
             angles = np.append(angles, normalize_angle(ang))
@@ -203,6 +203,92 @@ def lidar_scan(msgScan):
 
     # distances in [m], angles in [radians], information [0-1]
     return ( distances, angles, information,  msgScan.range_max, msgScan.angle_max - msgScan.angle_min)
+
+
+def lidar_scan_with_correspondences(msgScan, X_true):
+    """
+    Process a lidar scan to extract distances, angles, and global landmark positions.
+
+    Args:
+        msgScan: Laser scan message with ranges, angle_min, and angle_increment.
+        X_true: Robot's pose in the global frame (x, y, theta).
+
+    Returns:
+        distances: Array of valid range measurements.
+        angles: Array of corresponding angles for the measurements.
+        landmarks: 2D NumPy array of global landmark coordinates (num_landmarks, 2).
+    """
+    distances = []
+    angles = []
+    landmarks = []
+
+    count = 0
+    for i in range(len(msgScan.ranges)):
+        # Calculate angle for this scan
+        ang = msgScan.angle_min + i * msgScan.angle_increment
+
+        # Determine distance for this scan
+        dist = msgScan.ranges[i]
+        if dist > msgScan.range_max or dist < msgScan.range_min:
+            continue  # Skip invalid ranges
+
+        count += 1
+
+        if count % 5 != 0:
+            continue
+        
+        # Compute local coordinates of the detected point
+        ox = np.sin(ang) * dist
+        oy = np.cos(ang) * dist
+
+        # Transform the local coordinates to global coordinates
+        gx, gy = transform_to_global(ox, oy, X_true)
+
+        # Store the valid measurement and corresponding global landmark
+        distances.append(dist)
+        angles.append(ang)
+        landmarks.append([gx, gy])
+
+    # Convert results to NumPy arrays
+    distances = np.array(distances)
+    angles = np.array(angles)
+    landmarks = np.array(landmarks)  # Shape: (num_landmarks, 2)
+
+    return distances, angles, landmarks
+
+
+def is_in_perceptual_field(cell_center, sensor_position, sensor_orientation, sensor_range_max, sensor_angle_range):
+    
+    # Calculate the distance and angle to the cell from the sensor
+    distance_to_cell = np.hypot(cell_center[0] - sensor_position[0], cell_center[1] - sensor_position[1])
+    angle_to_cell = np.arctan2(cell_center[1] - sensor_position[1], cell_center[0] - sensor_position[0]) - sensor_orientation
+                
+    # Check if the cell is within the perceptual field of the sensor
+    if distance_to_cell <= sensor_range_max and abs(angle_to_cell) <= sensor_angle_range / 2:
+        return True
+    else:
+        return False
+
+
+def transform_to_global(ox, oy, robot_pose):
+    """
+    Transform local coordinates (ox, oy) to global coordinates.
+
+    Args:
+        ox: Local x-coordinates (NumPy array).
+        oy: Local y-coordinates (NumPy array).
+        robot_pose: Robot's global pose as (x, y, theta).
+
+    Returns:
+        gx, gy: Global x and y coordinates (NumPy arrays).
+    """
+    x, y, theta = robot_pose
+
+    # Apply rotation and translation
+    gx = x + (ox * np.cos(theta) - oy * np.sin(theta))
+    gy = y + (ox * np.sin(theta) + oy * np.cos(theta))
+
+    return gx, gy
 
 
 def map_shift(grid_map, x_shift, y_shift):
@@ -231,3 +317,14 @@ def predict_range(grid_map, pose, angle):
     # Ray tracing to find the first occupied cell
     range_predicted = grid_map.trace_ray(x, y, dx, dy)
     return range_predicted
+
+def log_odds(p):
+    """
+    Log odds ratio of p(x):
+
+               p(x)
+     l(x) = log ----------
+             1 - p(x)
+
+    """
+    return np.log(p / (1 - p))
