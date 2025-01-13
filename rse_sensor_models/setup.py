@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'rse_nonparametric_filters'
+package_name = 'rse_sensor_models'
 
 setup(
     name=package_name,
@@ -20,7 +20,6 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'hf_estimation_3d = rse_nonparametric_filters.hf_node:main',
         ],
     },
 )
