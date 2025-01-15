@@ -4,7 +4,7 @@
 This package contains a companion code for the article Occupancy Grid Mapping with The Binary Bayes Filter in ROS 2 which introduces the basic occupancy grid mapping algorithm introduced in section 9.2 of the Probabilistic Robotics book.
 
 ## Article:
-[Occupancy Grid Mapping with The Binary Bayes Filter in ROS 2](https://medium.com/@kidargueta/recursive-state-estimation-with-kalman-filters-and-ros-2-b869d3775357?source=friends_link&sk=7bfc399c3dc05e1e2143933f8c98046d
+[Occupancy Grid Mapping with The Binary Bayes Filter in ROS 2](https://soulhackerslabs.com/occupancy-grid-mapping-with-the-binary-bayes-filter-in-ros-2-fefbf8cee8bb?sk=9edad0b6b7fc1f949dc11b4b0efd9a3d
 )
 
 ## Installation Instructions
