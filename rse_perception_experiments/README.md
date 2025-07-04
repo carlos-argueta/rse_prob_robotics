@@ -1,6 +1,23 @@
 # Robotic Perception Experiments
 
-A collection if simple perception experiments mostly done in Google Colab
+A collection of simple perception experiments mostly done in Google Colab
+
+## Robot Perception: 3D Object Detection From 2D Bounding Boxes
+![1_IHTvJpEKWIqR2rOP_LHAqg](https://github.com/user-attachments/assets/af1e1c4f-2919-4f48-8f37-071fffcd95c7)
+
+
+### Article:
+
+[Robot Perception: 3D Object Detection From 2D Bounding Boxes](https://soulhackerslabs.com/robot-perception-3d-object-detection-from-2d-bounding-boxes-c850eeb87d28?source=friends_link&sk=e04e7b7b739a9860868acf97af1b245f)
+
+Explore a simple pipeline converting 2D YOLO detections into 3D bounding boxes for robot perception.
+
+### Code:
+
+To explore the notebook, click [here](https://github.com/carlos-argueta/rse_prob_robotics/blob/main/rse_perception_experiments/notebooks/Simple_Robotics_Perception_Experiment_3_3_D_Object_Detection_in_Point_Clouds.ipynb).
+
+
+
 
 ## Robot Perception: Prompting Grounded SAM 2
 ![image](https://github.com/user-attachments/assets/206100b6-5b04-4f5f-ba30-fe03421e186b)
