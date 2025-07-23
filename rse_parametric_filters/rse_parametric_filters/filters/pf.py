@@ -1,78 +1,186 @@
 import numpy as np
+from numpy import random
 from numpy.random import randn
 from numpy.random import uniform
+
+import scipy.stats
+
+import time
 
 
 class ParticleFilter:
 
-	def __init__(self, initial_state, motion_model, observation_model, num_particles=1000, **kwargs):
+	def __init__(self, initial_state, motion_model, observation_model=None, num_particles=1000, resampling_method="multinomial", **kwargs):
 		# Process arguments
 		proc_noise_std = kwargs.get('proc_noise_std', [0.02, 0.02, 0.01])
 		obs_noise_std = kwargs.get('obs_noise_std', [0.02, 0.02, 0.01])
+		self.alphas = kwargs.get('alphas', [0.1, 0.01, 0.01, 0.1, 0.01, 0.01])
 
 		# Create particles and weights
 		self.num_particles = num_particles
 		if initial_state is not None:
-			particles = self.create_gaussian_particles(initial_state, proc_noise_std, self.num_particles)
+			self.particles = self.create_gaussian_particles(initial_state, proc_noise_std, self.num_particles)
 		else:
-			particles = self.create_uniform_particles([[-10, 10], [-10, 10], [0, 2 * np.pi]], self.num_particles, angle_dims=[2])
+			self.particles = self.create_uniform_particles([[-10, 10], [-10, 10], [0, 2 * np.pi]], self.num_particles, angle_dims=[2])
 		self.weights = np.ones(self.num_particles) / self.num_particles  # Uniform initial weights
 
-		self.mu = initial_state # Initial state estimate 
-		self.Sigma = initial_covariance # Initial uncertainty
-
-		self.g, self.G, self.V = motion_model() # The action model to use.
+		self.g = motion_model() # The action model to use.
 		
-		# Standard deviations of the process or action model noise
-		self.proc_noise_std = np.array(proc_noise_std)
-		# Process noise covariance (R)
-		self.R = np.diag(self.proc_noise_std ** 2)
-
-		self.h, self.H = observation_model() # The observation model to use
+		# self.h = observation_model() # The observation model to use
 
 		# Standard deviations for the observation or sensor model noise
 		self.obs_noise_std = np.array(obs_noise_std)
 		# Observation noise covariance (Q)
 		self.Q = np.diag(self.obs_noise_std ** 2)
 
+		# Resampling method
+		if resampling_method == "multinomial":
+			self.resample = self.multinomial_resample
+		elif resampling_method == "residual":
+			self.resample = self.residual_resample
+		elif resampling_method == "stratified":
+			self.resample = self.stratified_resample
+		elif resampling_method == "systematic":
+			self.resample = self.systematic_resample
+		else:
+			raise ValueError("Unknown resampling method: {}".format(resampling_method))
+	
 		self.exec_times_pred = []
 		self.exec_times_upd = []
 
-	def create_uniform_particles(self, ranges, N, angle_dims=None):
-		"""
-		Creates N particles with a uniform distribution for a state of any dimension.
+	def predict(self, u, dt):
+		start_time = time.time()
+		
+		self.particles = self.g(self.particles, u, dt, self.alphas)
 
-		This function generates particles where each state variable is drawn from an
-		independent uniform distribution defined by a specified range.
+		mu, Sigma = self.estimate()
 
-		Parameters
-		----------
-		ranges : array_like
-			A list or array of ranges for each state variable. The shape should be
-			(D, 2), where D is the dimensionality of the state. Each inner list
-			or tuple should contain the minimum and maximum values for that variable.
-			Example: [[x_min, x_max], [y_min, y_max], [hdg_min, hdg_max]]
+		end_time = time.time()
+		execution_time = end_time - start_time
+		self.exec_times_pred.append(execution_time)
+		print(f"Execution time prediction: {execution_time} seconds")
 
-		N : int
-			The number of particles to generate.
+		print("Average exec time pred: ", sum(self.exec_times_pred) / len(self.exec_times_pred))
 
-		angle_dims : list of int, optional
-			A list of indices for state variables that are angles. These angles will
-			be wrapped to the range [0, 2*pi]. For example, if the third state
-			variable (index 2) is a heading, you would pass `angle_dims=[2]`.
-			If None, no wrapping is performed.
+		return mu, Sigma
 
-		Returns
-		-------
-		numpy.ndarray
-			An array of particles of shape (N, D), where D is the dimensionality
-			of the state. Each row is a particle, and each column is a state variable.
+	def update(self, z, dt):
+		start_time = time.time()
+
+		# Calculate the error between the measured pose and each particle's pose
+		error = self.particles - z
+		
+		# Handle angle wrapping for the heading error. This is crucial.
+		# We subtract the angles and then wrap the result to the [-pi, pi] range.
+		error[:, 2] = (error[:, 2] - z[2] + np.pi) % (2 * np.pi) - np.pi
+		
+		# Calculate the likelihood of the error using a multivariate normal PDF.
+		# The mean of the error is [0, 0, 0].
+		# This gives a high likelihood to particles with low error.
+		likelihood = scipy.stats.multivariate_normal(mean=np.zeros(3), cov=self.Q).pdf(error)
+		
+		# Update the weights
+		self.weights *= likelihood
+
+		# --- Normalize weights ---
+		self.weights += 1.e-300      # Avoid round-off to zero
+		self.weights /= sum(self.weights) # Make weights sum to 1
+
+		# --- Resample particles based on the updated weights ---
+		if self.neff() < self.num_particles / 2:
+			indexes = self.resample()
+			self.particles = self.particles[indexes]
+			# The code below keeps the relative weights of the particles,
+			# another option is to have a uniform distribution like in the original code.
+			# self.weights = np.ones(self.num_particles) / self.num_particles
+			self.weights = self.weights[indexes]
+			self.weights /= sum(self.weights)
+			# assert np.allclose(self.weights, 1/self.num_particles)
+
+		mu, Sigma = self.estimate()
 			
-		Raises
-		------
-		ValueError
-			If the `ranges` array does not have the shape (D, 2).
-		"""
+		end_time = time.time()
+		execution_time = end_time - start_time
+		self.exec_times_upd.append(execution_time)
+		print(f"Execution time update: {execution_time} seconds")
+
+		print("Average exec time update: ", sum(self.exec_times_upd) / len(self.exec_times_upd))
+
+		return mu, Sigma
+	
+	def estimate(self):
+		"""returns mean and variance of the weighted particles"""
+
+		pos = self.particles[:, 0:2]
+		mean = np.average(pos, weights=self.weights, axis=0)
+		var = np.average((pos - mean)**2, weights=self.weights, axis=0)
+		return mean, var
+	
+	# Implementing the effective sample size N (Neff) calculation
+	def neff(self):
+		return 1. / np.sum(np.square(self.weights))
+	
+	def multinomial_resample(self):
+		cumulative_sum = np.cumsum(self.weights)
+		cumulative_sum[-1] = 1.  # avoid round-off errors
+		return np.searchsorted(cumulative_sum, random.rand(len(self.weights)))  
+	
+	def residual_resample(self):
+		N = len(self.weights)
+		indexes = np.zeros(N, 'i')
+
+		# take int(N*w) copies of each weight
+		num_copies = (N*np.asarray(self.weights)).astype(int)
+		k = 0
+		for i in range(N):
+			for _ in range(num_copies[i]): # make n copies
+				indexes[k] = i
+				k += 1
+
+		# use multinomial resample on the residual to fill up the rest.
+		residual = self.weights - num_copies     # get fractional part
+		residual /= sum(residual)     # normalize
+		cumulative_sum = np.cumsum(residual)
+		cumulative_sum[-1] = 1. # ensures sum is exactly one
+		indexes[k:N] = np.searchsorted(cumulative_sum, random.rand(N-k))
+
+		return indexes
+	
+	def stratified_resample(self):
+		N = len(self.weights)
+		# make N subdivisions, chose a random position within each one
+		positions = (random.rand(N) + range(N)) / N
+
+		indexes = np.zeros(N, 'i')
+		cumulative_sum = np.cumsum(self.weights)
+		i, j = 0, 0
+		while i < N:
+			if positions[i] < cumulative_sum[j]:
+				indexes[i] = j
+				i += 1
+			else:
+				j += 1
+		return indexes
+	
+	def systematic_resample(self):
+		N = len(self.weights)
+
+		# make N subdivisions, choose positions 
+		# with a consistent random offset
+		positions = (np.arange(N) + random.rand()) / N
+
+		indexes = np.zeros(N, 'i')
+		cumulative_sum = np.cumsum(self.weights)
+		i, j = 0, 0
+		while i < N:
+			if positions[i] < cumulative_sum[j]:
+				indexes[i] = j
+				i += 1
+			else:
+				j += 1
+		return indexes
+	
+	def create_uniform_particles(self, ranges, N, angle_dims=None):
 		# Ensure ranges is a NumPy array for calculations
 		ranges = np.asarray(ranges)
 		
@@ -105,46 +213,6 @@ class ParticleFilter:
 		return particles
 
 	def create_gaussian_particles(self, mean, std, N, angle_dims=None):
-		"""
-		Creates N particles with a Gaussian distribution for a state of any dimension.
-
-		This function generates particles where each state variable is drawn from an
-		independent Gaussian distribution defined by the corresponding mean and standard
-		deviation.
-
-		Parameters
-		----------
-		mean : array_like
-			The mean of the state variables. The length of this array determines the
-			dimensionality of the state.
-			Example: [x_mean, y_mean, heading_mean]
-
-		std : array_like
-			The standard deviation for each state variable. Must be the same length
-			as `mean`.
-			Example: [x_std, y_std, heading_std]
-
-		N : int
-			The number of particles to generate.
-
-		angle_dims : list of int, optional
-			A list of indices for state variables that are angles. These angles will
-			be wrapped to the range [0, 2*pi]. For example, if the third state
-			variable (index 2) is a heading, you would pass `angle_dims=[2]`.
-			If None, no wrapping is performed.
-
-		Returns
-		-------
-		numpy.ndarray
-			An array of particles of shape (N, D), where D is the dimensionality
-			of the state (i.e., len(mean)). Each row is a particle, and each column
-			is a state variable.
-
-		Raises
-		------
-		ValueError
-			If the lengths of `mean` and `std` are not equal.
-		"""
 		# Ensure mean and std are NumPy arrays for calculations
 		mean = np.asarray(mean)
 		std = np.asarray(std)
@@ -175,44 +243,3 @@ class ParticleFilter:
 					print(f"Warning: angle_dims index {i} is out of bounds for state dimension {dim}.")
 
 		return particles
-
-
-	def predict(self, u, dt):
-		start_time = time.time()
-		# Predict state estimate (mu) 
-		self.mu = self.g(self.mu, u, dt)
-		# Predict covariance (Sigma)
-		self.Sigma = self.G(self.mu, u, dt) @ self.Sigma @ self.G(self.mu, u, dt).T + self.R 
-
-		end_time = time.time()
-		execution_time = end_time - start_time
-		self.exec_times_pred.append(execution_time)
-		print(f"Execution time prediction: {execution_time} seconds")
-
-		print("Average exec time pred: ", sum(self.exec_times_pred) / len(self.exec_times_pred))
-
-
-		return self.mu, self.Sigma
-
-	def update(self, z, dt):
-		start_time = time.time()
-
-		# Compute the Kalman gain (K)
-		K = self.Sigma @ self.H(self.mu).T @ np.linalg.inv(self.H(self.mu) @ self.Sigma @ self.H(self.mu).T + self.Q)
-		
-		# Update state estimate (mu) 
-		innovation = z - self.h(self.mu)
-		self.mu = self.mu + (K @ innovation).reshape((self.mu.shape[0],))
-
-		# Update covariance (Sigma)
-		I = np.eye(len(K))
-		self.Sigma = (I - K @ self.H(self.mu)) @ self.Sigma
-
-		end_time = time.time()
-		execution_time = end_time - start_time
-		self.exec_times_upd.append(execution_time)
-		print(f"Execution time update: {execution_time} seconds")
-
-		print("Average exec time update: ", sum(self.exec_times_upd) / len(self.exec_times_upd))
-
-		return self.mu, self.Sigma

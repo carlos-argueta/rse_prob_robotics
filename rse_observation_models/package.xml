@@ -4,7 +4,7 @@
   <name>rse_observation_models</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="carlos.argueta@lungteh.com">carlos</maintainer>
+  <maintainer email="c.argueta@s1s2.ai">carlos</maintainer>
   <license>TODO: License declaration</license>
 
   <test_depend>ament_copyright</test_depend>
