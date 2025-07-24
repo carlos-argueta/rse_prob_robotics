@@ -26,6 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
             'pf_estimation_3d = rse_parametric_filters.pf_3d_state_estimation_no_cmd:main',
+            'pf_estimation_8d = rse_parametric_filters.pf_8d_state_estimation_no_cmd:main',
         ],
     },
 )

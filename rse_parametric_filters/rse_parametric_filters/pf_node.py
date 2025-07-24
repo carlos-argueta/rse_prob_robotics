@@ -69,6 +69,9 @@ class ParticleFilterBaseNode(Node):
         self.initial_gt_pose = None
         self.normalized_gt_pose = (0.0, 0.0, 0.0)
 
+        self.odom_count = 0
+        self.odom_skip = 30
+
         print("PF ready!")
 
     def update_visualizer(self):
@@ -110,7 +113,11 @@ class ParticleFilterBaseNode(Node):
 
         self.set_observation()
 
-        self.mu, self.Sigma = self.pf.update(self.z, dt)
+        self.odom_count += 1
+        if self.odom_count % self.odom_skip == 0:
+            self.mu, self.Sigma = self.pf.update(self.z, dt)
+            
+        print(f"mu: {self.mu}, Sigma: {self.Sigma}")
        
         self.prev_normalized_pose = self.normalized_pose
 
@@ -172,6 +179,7 @@ class ParticleFilterNode(ParticleFilterBaseNode):
 
     def set_observation(self):
         self.z = self.normalized_pose
+
 
 class ParticleFilterFusionNode(ParticleFilterNode):
 

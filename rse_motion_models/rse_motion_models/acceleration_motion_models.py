@@ -194,3 +194,39 @@ def acceleration_motion_model_3D():
 		return g
 	
 	return state_transition_function_g
+
+
+def acceleration_motion_model_particles():
+
+	def sample_acceleration_model_velocity(particles, u, dt, alphas):
+		N = particles.shape[0]
+		v_cmd, w_cmd = u
+		x, y, theta, v_x, v_y, w, a_x, a_y = particles.T
+
+		# Define noise for accelerations and angular velocity based on commands
+		ax_var = alphas[0] * v_cmd**2 + alphas[1] * w_cmd**2
+		ay_var = alphas[2] * v_cmd**2 + alphas[3] * w_cmd**2
+		w_var = alphas[4] * v_cmd**2 + alphas[5] * w_cmd**2
+		
+		# Add noise to the highest-order terms
+		a_x_new = a_x + np.random.randn(N) * np.sqrt(ax_var)
+		a_y_new = a_y + np.random.randn(N) * np.sqrt(ay_var)
+		w_new = w + np.random.randn(N) * np.sqrt(w_var)
+
+		# Update velocities based on previous accelerations
+		v_x_new = v_x + a_x * dt
+		v_y_new = v_y + a_y * dt
+		
+		# Update pose based on previous velocities and new angular velocity
+		cos_theta, sin_theta = np.cos(theta), np.sin(theta)
+		dx_world = (v_x * cos_theta - v_y * sin_theta) * dt
+		dy_world = (v_x * sin_theta + v_y * cos_theta) * dt
+		
+		x_new = x + dx_world
+		y_new = y + dy_world
+		theta_new = (theta + w_new * dt) % (2 * np.pi)
+
+		return np.vstack([x_new, y_new, theta_new, v_x_new, v_y_new, w_new, a_x_new, a_y_new]).T
+
+	return sample_acceleration_model_velocity
+

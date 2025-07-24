@@ -101,3 +101,21 @@ def odometry_imu_observation_model_with_acceleration_motion_model_3D():
 		return np.array([[x], [y], [z], [roll], [pitch], [yaw], [roll], [pitch], [yaw], [w_x], [w_y], [w_z], [a_x], [a_y], [a_z]])
 	
 	return observation_function_h
+
+def odometry_imu_observation_model_particles():
+	def observation_model(particles, z, Q):
+		# Calculate the error between the measured pose and each particle's pose
+		error = particles - z
+		
+		# Handle angle wrapping for the heading error. This is crucial.
+		# We subtract the angles and then wrap the result to the [-pi, pi] range.
+		error[:, 2] = (error[:, 2] - z[2] + np.pi) % (2 * np.pi) - np.pi
+		
+		# Calculate the likelihood of the error using a multivariate normal PDF.
+		# The mean of the error is [0, 0, 0].
+		# This gives a high likelihood to particles with low error.
+		likelihood = scipy.stats.multivariate_normal(mean=np.zeros(8), cov=Q).pdf(error)
+
+		return likelihood
+	
+	return observation_model

@@ -3,14 +3,12 @@ from numpy import random
 from numpy.random import randn
 from numpy.random import uniform
 
-import scipy.stats
-
 import time
 
 
 class ParticleFilter:
 
-	def __init__(self, initial_state, motion_model, observation_model=None, num_particles=1000, resampling_method="multinomial", **kwargs):
+	def __init__(self, initial_state, motion_model, observation_model, num_particles=1000, resampling_method="multinomial", **kwargs):
 		# Process arguments
 		proc_noise_std = kwargs.get('proc_noise_std', [0.02, 0.02, 0.01])
 		obs_noise_std = kwargs.get('obs_noise_std', [0.02, 0.02, 0.01])
@@ -26,7 +24,7 @@ class ParticleFilter:
 
 		self.g = motion_model() # The action model to use.
 		
-		# self.h = observation_model() # The observation model to use
+		self.h = observation_model() # The observation model to use
 
 		# Standard deviations for the observation or sensor model noise
 		self.obs_noise_std = np.array(obs_noise_std)
@@ -67,18 +65,8 @@ class ParticleFilter:
 	def update(self, z, dt):
 		start_time = time.time()
 
-		# Calculate the error between the measured pose and each particle's pose
-		error = self.particles - z
-		
-		# Handle angle wrapping for the heading error. This is crucial.
-		# We subtract the angles and then wrap the result to the [-pi, pi] range.
-		error[:, 2] = (error[:, 2] - z[2] + np.pi) % (2 * np.pi) - np.pi
-		
-		# Calculate the likelihood of the error using a multivariate normal PDF.
-		# The mean of the error is [0, 0, 0].
-		# This gives a high likelihood to particles with low error.
-		likelihood = scipy.stats.multivariate_normal(mean=np.zeros(3), cov=self.Q).pdf(error)
-		
+		likelihood = self.h(self.particles, z, self.Q)
+
 		# Update the weights
 		self.weights *= likelihood
 
@@ -109,12 +97,25 @@ class ParticleFilter:
 		return mu, Sigma
 	
 	def estimate(self):
-		"""returns mean and variance of the weighted particles"""
+		# Calculate the weighted mean of the non-angle state variables
+		mean = np.average(self.particles, weights=self.weights, axis=0)
 
-		pos = self.particles[:, 0:2]
-		mean = np.average(pos, weights=self.weights, axis=0)
-		var = np.average((pos - mean)**2, weights=self.weights, axis=0)
-		return mean, var
+		# For the angle (heading), a simple average is incorrect.
+		# We average the sin/cos components to correctly handle wrapping.
+		sum_sin = np.sum(self.weights * np.sin(self.particles[:, 2]))
+		sum_cos = np.sum(self.weights * np.cos(self.particles[:, 2]))
+		mean[2] = np.arctan2(sum_sin, sum_cos)
+
+		# Calculate deviations from the mean
+		dev = self.particles - mean
+		# Wrap the angle deviations to the range [-pi, pi]
+		dev[:, 2] = (dev[:, 2] + np.pi) % (2 * np.pi) - np.pi
+
+		# Calculate the weighted covariance matrix using an efficient matrix product
+		# cov = sum(w_i * dev_i * dev_i^T), where dev_i is the deviation of particle i
+		cov = dev.T @ (dev * self.weights[:, np.newaxis])
+		
+		return mean, cov
 	
 	# Implementing the effective sample size N (Neff) calculation
 	def neff(self):
