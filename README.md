@@ -14,11 +14,11 @@ If you encounter any problems with the code, please open an Issue, and I will tr
 # Gaussian Filters 
 Implemented within the package [rse_gaussian_filters](rse_gaussian_filters), this series of articles covers mainly chapters 1 through 3 of the book and introduces the Kalman family of filters as well as the Information Filter.
 
+# Nonparametric Filters
+Implemented within the package [rse_nonparametric_filters](rse_nonparametric_filters), this series explores algorithms like the Particle Filter and the Histogram Filter that model a state and the underlying uncertainty without assuming a specific parametric form. These filters are introduced in Chapter 4 of the Probabilistic Robotics book.
+
 # Occupancy Grid Mapping
 Implemented within the package [rse_occupancy_grid_mapping](rse_occupancy_grid_mapping), this article introduces the Binary Bayes Filter in log odds form to tackle the problem of creating a map of the environment using Occupancy Grids.
-
-# Non-Parametric Filters (coming soon)
-This series will explore algorithms like Histogram and Particle Filters that model uncertainty without assuming a specific parametric form.
 
 # Mobile Robot Localization (coming soon)
 This series of articles will cover Mobile Robot Localization with the Extended Kalman Filter and other approaches.
