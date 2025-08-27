@@ -62,3 +62,7 @@ ros2 bag play linkou-2023-12-27-2-med --clock
     <img src="https://img.youtube.com/vi/46eQsJqjOXk/0.jpg" alt="Watch the video" style="width:80%;height:auto;">
   </a>
 </div>
+
+## The Histogram Filter
+
+### Coming soon!
