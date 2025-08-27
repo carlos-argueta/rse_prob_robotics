@@ -69,6 +69,7 @@ class ParticleFilter:
 	def update(self, z, dt):
 		start_time = time.time()
 
+		# Compute likehood of each particle given the observation
 		likelihood = self.h(self.particles, z, self.Q)
 
 		# Update the weights
