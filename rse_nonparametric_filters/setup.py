@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 import os
 from glob import glob
 
-package_name = 'rse_parametric_filters'
+package_name = 'rse_nonparametric_filters'
 
 setup(
     name=package_name,
@@ -25,8 +25,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'pf_estimation_3d = rse_parametric_filters.pf_3d_state_estimation_no_cmd:main',
-            'pf_estimation_8d = rse_parametric_filters.pf_8d_state_estimation_no_cmd:main',
+            'pf_estimation_3d = rse_nonparametric_filters.pf_3d_state_estimation_no_cmd:main',
+            'pf_estimation_8d = rse_nonparametric_filters.pf_8d_state_estimation_no_cmd:main',
         ],
     },
 )
