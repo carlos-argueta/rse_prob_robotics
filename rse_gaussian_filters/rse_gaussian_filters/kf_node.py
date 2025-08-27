@@ -129,7 +129,7 @@ class KalmanFilterBaseNode(Node):
             self.Sigma = np.linalg.inv(inf_matrix)
             self.mu = self.Sigma @ inf_vector
 
-        print(f"mu: {self.mu}, Sigma: {self.Sigma}")
+        # print(f"mu: {self.mu}, Sigma: {self.Sigma}")
 
         self.prev_normalized_pose = self.normalized_pose
 
