@@ -1,10 +1,3 @@
-
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
 import rclpy
 
 import numpy as np
@@ -23,7 +16,7 @@ def main(args=None):
     mu0[1] = -2.0 
     # Sigma0 = np.eye(3)
     proc_noise_std = [0.002, 0.002, 0.001] 
-    obs_noise_std = [0.02, 0.02, 1000.01]
+    obs_noise_std = [5.0, 5.0, 1000.0]
     alphas = [0.1, 0.01, 0.01, 0.1, 0.01, 0.01]
 
     pf = ParticleFilter(mu0, #Sigma0, 
@@ -33,7 +26,7 @@ def main(args=None):
                                resampling_method="stratified",
                                proc_noise_std = proc_noise_std,
                                obs_noise_std = obs_noise_std,
-                               alphas=alphas)
+                               motion_model_params=alphas)
 
     rclpy.init(args=args)
     particle_filter_node = ParticleFilterNode(pf)

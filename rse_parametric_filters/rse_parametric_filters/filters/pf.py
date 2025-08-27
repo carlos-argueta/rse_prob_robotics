@@ -3,17 +3,20 @@ from numpy import random
 from numpy.random import randn
 from numpy.random import uniform
 
+from rse_observation_models.odometry_imu_observation_models import odometry_imu_observation_model_particles_1
+from rse_observation_models.odometry_imu_observation_models import odometry_imu_observation_model_particles_2
+
 import time
 
 
 class ParticleFilter:
 
 	def __init__(self, initial_state, motion_model, observation_model, num_particles=1000, resampling_method="multinomial", **kwargs):
-		# Process arguments
+		# Arguments
 		proc_noise_std = kwargs.get('proc_noise_std', [0.02, 0.02, 0.01])
 		obs_noise_std = kwargs.get('obs_noise_std', [0.02, 0.02, 0.01])
-		self.alphas = kwargs.get('alphas', [0.1, 0.01, 0.01, 0.1, 0.01, 0.01])
-
+		self.motion_model_params = kwargs.get('motion_model_params', None)
+		
 		# Create particles and weights
 		self.num_particles = num_particles
 		if initial_state is not None:
@@ -25,12 +28,13 @@ class ParticleFilter:
 		self.g = motion_model() # The action model to use.
 		
 		self.h = observation_model() # The observation model to use
-
+		
 		# Standard deviations for the observation or sensor model noise
-		self.obs_noise_std = np.array(obs_noise_std)
+		self.obs_noise_std = np.asarray(obs_noise_std, dtype=np.float64)
+	
 		# Observation noise covariance (Q)
 		self.Q = np.diag(self.obs_noise_std ** 2)
-
+		
 		# Resampling method
 		if resampling_method == "multinomial":
 			self.resample = self.multinomial_resample
@@ -49,7 +53,7 @@ class ParticleFilter:
 	def predict(self, u, dt):
 		start_time = time.time()
 		
-		self.particles = self.g(self.particles, u, dt, self.alphas)
+		self.particles = self.g(self.particles, u, dt, self.motion_model_params)
 
 		mu, Sigma = self.estimate()
 
@@ -70,19 +74,19 @@ class ParticleFilter:
 		# Update the weights
 		self.weights *= likelihood
 
-		# --- Normalize weights ---
+		# Normalize weights
 		self.weights += 1.e-300      # Avoid round-off to zero
 		self.weights /= sum(self.weights) # Make weights sum to 1
 
-		# --- Resample particles based on the updated weights ---
+		# Resample particles based on the updated weights
 		if self.neff() < self.num_particles / 2:
 			indexes = self.resample()
 			self.particles = self.particles[indexes]
 			# The code below keeps the relative weights of the particles,
 			# another option is to have a uniform distribution like in the original code.
-			# self.weights = np.ones(self.num_particles) / self.num_particles
-			self.weights = self.weights[indexes]
-			self.weights /= sum(self.weights)
+			self.weights = np.ones(self.num_particles) / self.num_particles
+			# self.weights = self.weights[indexes]
+			# self.weights /= sum(self.weights)
 			# assert np.allclose(self.weights, 1/self.num_particles)
 
 		mu, Sigma = self.estimate()
@@ -97,7 +101,7 @@ class ParticleFilter:
 		return mu, Sigma
 	
 	def estimate(self):
-		# Calculate the weighted mean of the non-angle state variables
+		# Calculate the weighted mean
 		mean = np.average(self.particles, weights=self.weights, axis=0)
 
 		# For the angle (heading), a simple average is incorrect.
@@ -111,8 +115,7 @@ class ParticleFilter:
 		# Wrap the angle deviations to the range [-pi, pi]
 		dev[:, 2] = (dev[:, 2] + np.pi) % (2 * np.pi) - np.pi
 
-		# Calculate the weighted covariance matrix using an efficient matrix product
-		# cov = sum(w_i * dev_i * dev_i^T), where dev_i is the deviation of particle i
+		# Calculate the weighted covariance matrix
 		cov = dev.T @ (dev * self.weights[:, np.newaxis])
 		
 		return mean, cov

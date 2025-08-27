@@ -10,10 +10,10 @@ import numpy as np
 import math
 
 class Visualizer:
-    def __init__(self, title = "Figure 1"):
+    def __init__(self, title = "Trajectory Estimation", filter_label = "Kalman Filter"):
         self.fig, self.ax = plt.subplots()
-        self.gt_line, = self.ax.plot([], [], 'g-', label='Ground Truth')  # Green line for ground truth path
-        self.kf_line, = self.ax.plot([], [], 'b-', label='Kalman/Information Filter')  # Red line for Kalman filter path
+        self.gt_line, = self.ax.plot([], [], 'y-', label='Ground Truth')  # Green line for ground truth path
+        self.kf_line, = self.ax.plot([], [], 'b-', label=filter_label)  # Red line for Kalman filter path
         self.obs_line, = self.ax.plot([], [], 'r-', label='Observation')
         self.ax.legend()
 
@@ -25,10 +25,16 @@ class Visualizer:
         self.cov_ellipse = Ellipse(xy=(0, 0), width=0, height=0, edgecolor='black', fc='None', lw=2)
         self.ax.add_patch(self.cov_ellipse)
 
+        # For particles visualization
+        self.particles_quiver = None
+        self._q_count = 0
+        self.max_particles_to_draw = 100
+        self.arrow_len = 0.25
+
         # Set axis labels
         self.ax.set_xlabel('X coordinate')
         self.ax.set_ylabel('Y coordinate')
-        self.ax.set_title('Kalman Filter Visualization')
+        self.ax.set_title('Particle Filter Visualization')
 
         # Initialize min and max for x and y
         self.x_min, self.x_max = float('inf'), float('-inf')
@@ -114,6 +120,78 @@ class Visualizer:
         self.cov_ellipse.height = height
         self.cov_ellipse.angle = angle
         self.cov_ellipse.set_edgecolor(color)
+
+    def set_particles(self, particles, weights=None):
+        """
+        particles: (N, >=3) [x, y, theta, ...]
+        weights:   (N,) optional; used for top-K selection and styling
+        """
+        # Clear fast path
+        if particles is None or len(particles) == 0:
+            if self.particles_quiver is not None:
+                self.particles_quiver.set_offsets(np.empty((0, 2)))
+                self.particles_quiver.set_UVC(np.array([]), np.array([]))
+                self._q_count = 0
+            return
+
+        pts = particles
+        N = pts.shape[0]
+        x_all = pts[:, 0].astype(float)
+        y_all = pts[:, 1].astype(float)
+        th_all = pts[:, 2].astype(float)
+
+        # -------- Selection: top-K by weight (fallback = all/random) --------
+        if weights is not None:
+            w = np.asarray(weights, dtype=float)
+            # Normalize safely
+            w = w - np.min(w)
+            total = np.sum(w)
+            if total <= 0:
+                w = np.ones_like(w) / max(len(w), 1)
+            else:
+                w = w / total
+
+            K = min(self.max_particles_to_draw, N)
+            # argsort descending, take top-K
+            idx = np.argsort(w)[-K:][::-1]
+            x, y, th, w_sel = x_all[idx], y_all[idx], th_all[idx], w[idx]
+        else:
+            # No weights -> just cap to max, keep first K
+            K = min(self.max_particles_to_draw, N)
+            x, y, th = x_all[:K], y_all[:K], th_all[:K]
+            w_sel = None
+
+        # -------- Arrow geometry (length or color by weight) --------
+        # Base length
+        L = np.full_like(x, self.arrow_len, dtype=float)
+        if w_sel is not None:
+            # map weights to [0.5, 1.0] multiplier so low weights still visible
+            L *= 0.5 + 0.5 * (w_sel - w_sel.min()) / (w_sel.max() - w_sel.min() + 1e-12)
+
+        u = np.cos(th) * L
+        v = np.sin(th) * L
+
+        # -------- Draw / update quiver --------
+        n = x.size
+        if self.particles_quiver is None or self._q_count != n:
+            if self.particles_quiver is not None:
+                self.particles_quiver.remove()
+            # If you want weight-colored arrows instead of yellow, set "C=w_sel, cmap='plasma'"
+            self.particles_quiver = self.ax.quiver(
+                x, y, u, v,
+                angles='xy', scale_units='xy', scale=0.5,
+                color='green',  # replace with: C=w_sel, cmap='plasma' to color by weight
+                width=0.001, alpha=0.9
+            )
+            self._q_count = n
+        else:
+            self.particles_quiver.set_offsets(np.column_stack((x, y)))
+            self.particles_quiver.set_UVC(u, v)
+
+        # Bounds so arrows stay in view
+        self.update_bounds(float(np.min(x)), float(np.min(y)))
+        self.update_bounds(float(np.max(x)), float(np.max(y)))
+
 
 class UKFVisualizer:
     def __init__(self):

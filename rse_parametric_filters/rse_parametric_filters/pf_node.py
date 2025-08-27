@@ -1,9 +1,3 @@
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-
 from rclpy.node import Node
 
 from sensor_msgs.msg import Imu
@@ -41,7 +35,7 @@ class ParticleFilterBaseNode(Node):
 
         self.pf = pf
         
-        self.visualizer = Visualizer()
+        self.visualizer = Visualizer(filter_label="Particle Filter")
 
         # Create a ROS 2 timer for the visualizer updates
         self.visualizer_timer = self.create_timer(0.1, self.update_visualizer)
@@ -70,13 +64,17 @@ class ParticleFilterBaseNode(Node):
         self.normalized_gt_pose = (0.0, 0.0, 0.0)
 
         self.odom_count = 0
-        self.odom_skip = 30
+        self.odom_skip = 1
 
         print("PF ready!")
 
     def update_visualizer(self):
         # Call the visualizer update asynchronously
         if self.mu is not None and self.Sigma is not None:
+            particles = self.pf.particles
+            weights   = self.pf.weights
+            self.visualizer.set_particles(particles, weights)
+
             if self.z is not None:
                 self.visualizer.update(self.normalized_gt_pose, self.mu, self.Sigma, self.z, step="update")
             else:
@@ -117,7 +115,7 @@ class ParticleFilterBaseNode(Node):
         if self.odom_count % self.odom_skip == 0:
             self.mu, self.Sigma = self.pf.update(self.z, dt)
             
-        print(f"mu: {self.mu}, Sigma: {self.Sigma}")
+        # print(f"mu: {self.mu}, Sigma: {self.Sigma}")
        
         self.prev_normalized_pose = self.normalized_pose
 

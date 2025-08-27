@@ -123,7 +123,9 @@ def velocity_motion_model_linearized_2():
 
 def velocity_motion_model_particles():
 
-	def sample_motion_model_velocity(particles, u, dt, alphas):
+	def sample_motion_model_velocity(particles, u, dt, params=None):
+		# alphas = params if params is not None else np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+		alphas = params
 		N = len(particles)
 		v, w = u
 
@@ -133,10 +135,6 @@ def velocity_motion_model_particles():
 		theta = particles[:, 2]
 
 		# Add noise to the control inputs
-		# The noise variance is proportional to the commanded velocities
-		# Note: The book uses a complex sampling method. Using np.random.randn
-		# to sample from a normal distribution with the specified variance is
-		# a more direct and common approach.
 		v_var = alphas[0] * v**2 + alphas[1] * w**2
 		w_var = alphas[2] * v**2 + alphas[3] * w**2
 		gamma_var = alphas[4] * v**2 + alphas[5] * w**2
@@ -155,7 +153,6 @@ def velocity_motion_model_particles():
 		straight_mask = np.isclose(w_hat, 0.0)
 		curved_mask = ~straight_mask
 
-		# --- Update particles for the curved path (w_hat is not zero) ---
 		x_new = np.zeros(N)
 		y_new = np.zeros(N)
 
@@ -164,11 +161,9 @@ def velocity_motion_model_particles():
 		y_new[curved_mask] = y[curved_mask] + v_div_w[curved_mask] * np.cos(theta[curved_mask]) - \
 							v_div_w[curved_mask] * np.cos(theta_new[curved_mask])
 
-		# --- Update particles for the straight path (w_hat is zero) ---
 		x_new[straight_mask] = x[straight_mask] + v_hat[straight_mask] * dt * np.cos(theta[straight_mask])
 		y_new[straight_mask] = y[straight_mask] + v_hat[straight_mask] * dt * np.sin(theta[straight_mask])
 
-		# --- Update heading for all particles ---
 		# Add the final gamma noise and wrap to [0, 2*pi]
 		theta_final = theta_new + gamma_hat * dt
 		theta_final %= 2 * np.pi

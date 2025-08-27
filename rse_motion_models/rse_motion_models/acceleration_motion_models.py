@@ -16,12 +16,12 @@ def acceleration_motion_model_linearized_1():
 		
 		g = np.array([
 			x + v * np.cos(theta) * delta_t + 0.5 * a_x * delta_t**2,      
-    		y + v * np.sin(theta) * delta_t + 0.5 * a_y * delta_t**2,    
-    		theta + w * delta_t,
-    		v + a_x * np.cos(theta) * delta_t + a_y * np.sin(theta) * delta_t,
-    		w,                                                      
-    		a_x,                                                              
-    		a_y
+			y + v * np.sin(theta) * delta_t + 0.5 * a_y * delta_t**2,    
+			theta + w * delta_t,
+			v + a_x * np.cos(theta) * delta_t + a_y * np.sin(theta) * delta_t,
+			w,                                                      
+			a_x,                                                              
+			a_y
 		])
 
 		return g
@@ -33,13 +33,13 @@ def acceleration_motion_model_linearized_1():
 		w = u[1]       
 
 		G = np.array([[1.0, 0.0, -delta_t * v * np.sin(theta), delta_t  * np.cos(theta), 0.0, 0.5*delta_t**2, 0.0],   
-                   [0.0, 1.0, delta_t * v * np.cos(theta), delta_t * np.sin(theta), 0.0, 0.0, 0.5*delta_t**2],       
-                   [0.0, 0.0, 1.0, 0.0, delta_t, 0.0, 0.0],                                      
-                   [0.0, 0.0, -delta_t * a_x * np.sin(theta) + delta_t * a_y * np.cos(theta), 
-                   1.0, 0.0, delta_t * np.cos(theta), delta_t * np.sin(theta)],                  
-                   [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],                                          
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],                                          
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])                                         
+				   [0.0, 1.0, delta_t * v * np.cos(theta), delta_t * np.sin(theta), 0.0, 0.0, 0.5*delta_t**2],       
+				   [0.0, 0.0, 1.0, 0.0, delta_t, 0.0, 0.0],                                      
+				   [0.0, 0.0, -delta_t * a_x * np.sin(theta) + delta_t * a_y * np.cos(theta), 
+				   1.0, 0.0, delta_t * np.cos(theta), delta_t * np.sin(theta)],                  
+				   [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],                                          
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],                                          
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])                                         
 		
 		return G
 
@@ -70,14 +70,14 @@ def acceleration_motion_model_linearized_2():
 		w = u[1]       
 		
 		g = np.array([
-		    x + v * np.cos(theta) * delta_t + 0.5 * a_x * delta_t**2,  
-		    y + v * np.sin(theta) * delta_t + 0.5 * a_y * delta_t**2,  
-		    theta + w * delta_t,                                   
-		    v * np.cos(theta) + a_x * delta_t,                         
-		    v * np.sin(theta) + a_y * delta_t,                         
-		    w,                                                         
-		    a_x,                                                       
-		    a_y                                                        
+			x + v * np.cos(theta) * delta_t + 0.5 * a_x * delta_t**2,  
+			y + v * np.sin(theta) * delta_t + 0.5 * a_y * delta_t**2,  
+			theta + w * delta_t,                                   
+			v * np.cos(theta) + a_x * delta_t,                         
+			v * np.sin(theta) + a_y * delta_t,                         
+			w,                                                         
+			a_x,                                                       
+			a_y                                                        
 		])
 
 		return g
@@ -89,13 +89,13 @@ def acceleration_motion_model_linearized_2():
 		w = u[1]       
 
 		G = np.array([[1.0, 0.0, -delta_t * v * np.sin(theta), 0.0, 0.0, 0.0, 0.5*delta_t**2, 0.0],   
-                   [0.0, 1.0, delta_t * v * np.cos(theta), 0.0, 0.0, 0.0, 0.0, 0.5*delta_t**2],        
-                   [0.0, 0.0, 1.0, 0.0, 0.0, delta_t, 0.0, 0.0],                                      
-                   [0.0, 0.0, -v * np.sin(theta), 0.0, 0.0, 0.0, delta_t, 0.0],                       
-                   [0.0, 0.0, v * np.cos(theta), 0.0, 0.0, 0.0, 0.0, delta_t],                        
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],                                          
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],                                          
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])                                         
+				   [0.0, 1.0, delta_t * v * np.cos(theta), 0.0, 0.0, 0.0, 0.0, 0.5*delta_t**2],        
+				   [0.0, 0.0, 1.0, 0.0, 0.0, delta_t, 0.0, 0.0],                                      
+				   [0.0, 0.0, -v * np.sin(theta), 0.0, 0.0, 0.0, delta_t, 0.0],                       
+				   [0.0, 0.0, v * np.cos(theta), 0.0, 0.0, 0.0, 0.0, delta_t],                        
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],                                          
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],                                          
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])                                         
 		
 		return G
 
@@ -138,13 +138,13 @@ def acceleration_motion_model_no_control_linearized():
 
 	def jacobian_of_g_wrt_state_G(mu = None, u = None, delta_t = None):
 		G = np.array([[1.0, 0.0, 0.0, delta_t, 0.0, 0.0, 0.5*delta_t**2, 0.0],   # x = x + v_x * dt  + 0.5 * a_x * dt^2
-                   [0.0, 1.0, 0.0, 0.0, delta_t, 0.0, 0.0, 0.5*delta_t**2],      # y = y + v_y * dt  + 0.5 * a_y * dt^2
-                   [0.0, 0.0, 1.0, 0.0, 0.0, delta_t, 0.0, 0.0],                 # theta = theta + omega * dt 
-                   [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, delta_t, 0.0],                 # v_x = v_x + a_x * dt
-                   [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, delta_t],                 # v_y = v_y + a_y * dt
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],                     # omega = omega
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],                     # a_x = a_x
-                   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])                    # a_y = a_y
+				   [0.0, 1.0, 0.0, 0.0, delta_t, 0.0, 0.0, 0.5*delta_t**2],      # y = y + v_y * dt  + 0.5 * a_y * dt^2
+				   [0.0, 0.0, 1.0, 0.0, 0.0, delta_t, 0.0, 0.0],                 # theta = theta + omega * dt 
+				   [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, delta_t, 0.0],                 # v_x = v_x + a_x * dt
+				   [0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, delta_t],                 # v_y = v_y + a_y * dt
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0],                     # omega = omega
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0],                     # a_x = a_x
+				   [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0]])                    # a_y = a_y
 		
 		return G
 
@@ -198,35 +198,83 @@ def acceleration_motion_model_3D():
 
 def acceleration_motion_model_particles():
 
-	def sample_acceleration_model_velocity(particles, u, dt, alphas):
+	def sample_acceleration_model_velocity(particles, u, dt, params=None):
+		print("Params", params)
+		
+		v_cmd, w_cmd = u  # scalars or arrays length N
 		N = particles.shape[0]
-		v_cmd, w_cmd = u
-		x, y, theta, v_x, v_y, w, a_x, a_y = particles.T
+		out = particles.copy()
 
-		# Define noise for accelerations and angular velocity based on commands
-		ax_var = alphas[0] * v_cmd**2 + alphas[1] * w_cmd**2
-		ay_var = alphas[2] * v_cmd**2 + alphas[3] * w_cmd**2
-		w_var = alphas[4] * v_cmd**2 + alphas[5] * w_cmd**2
-		
-		# Add noise to the highest-order terms
-		a_x_new = a_x + np.random.randn(N) * np.sqrt(ax_var)
-		a_y_new = a_y + np.random.randn(N) * np.sqrt(ay_var)
-		w_new = w + np.random.randn(N) * np.sqrt(w_var)
+		# Broadcast commands
+		if np.isscalar(v_cmd): v_cmd = np.full(N, float(v_cmd))
+		if np.isscalar(w_cmd): w_cmd = np.full(N, float(w_cmd))
 
-		# Update velocities based on previous accelerations
-		v_x_new = v_x + a_x * dt
-		v_y_new = v_y + a_y * dt
-		
-		# Update pose based on previous velocities and new angular velocity
-		cos_theta, sin_theta = np.cos(theta), np.sin(theta)
-		dx_world = (v_x * cos_theta - v_y * sin_theta) * dt
-		dy_world = (v_x * sin_theta + v_y * cos_theta) * dt
-		
-		x_new = x + dx_world
-		y_new = y + dy_world
-		theta_new = (theta + w_new * dt) % (2 * np.pi)
+		# Parameters for the motion model
+		tau_v  = params[0]    # speed response
+		tau_w  = params[1]    # yaw response
+		tau_vy = params[2]    # lateral velocity damping
+		tau_ay = params[3]    # lateral accel damping
 
-		return np.vstack([x_new, y_new, theta_new, v_x_new, v_y_new, w_new, a_x_new, a_y_new]).T
+		# Process noise (per sqrt(sec))
+		sig_ax =  params[4]   # accel noise x  (m/s^2)
+		sig_ay =  params[5]   # accel noise y  (m/s^2)
+		sig_w  = params[6]   # yaw-rate noise (rad/s)
+		sig_vx = params[7]   # direct vel noise (m/s)
+		sig_vy = params[8]
+		sig_p  = params[9]  # position noise (m)
+		sig_th = params[10]  # heading integration noise (rad)
+
+		# Unpack
+		x, y, th, vx, vy, w, ax, ay = [out[:, i] for i in range(8)]
+
+		# 1) Command tracking (first-order)
+		#    ax drives vx -> v_cmd; w tracks w_cmd directly.
+		#    Discretize with Euler–Maruyama, add process noise.
+		ax_noise = sig_ax * np.sqrt(dt) * np.random.randn(N)
+		ay_noise = sig_ay * np.sqrt(dt) * np.random.randn(N)
+		w_noise  = sig_w  * np.sqrt(dt) * np.random.randn(N)
+
+		# a_x tries to reduce (vx - v_cmd) with time constant tau_v
+		ax_new = ax + (-(vx - v_cmd)/tau_v - ax/tau_v) * dt + ax_noise
+		# a_y damped toward 0 (no lateral command; slip captured by noise)
+		ay_new = ay + (-ay / tau_ay) * dt + ay_noise
+
+		# yaw rate tracks w_cmd with time constant tau_w
+		w_new  = w + (-(w - w_cmd)/tau_w) * dt + w_noise
+
+		# 2) Integrate body-frame velocities
+		vx_noise = sig_vx * np.sqrt(dt) * np.random.randn(N)
+		vy_noise = sig_vy * np.sqrt(dt) * np.random.randn(N)
+
+		vx_new = vx + ax_new * dt + vx_noise
+		# lateral velocity softly damped to 0 as well
+		vy_new = vy + ay_new * dt - (vy / tau_vy) * dt + vy_noise
+
+		# 3) Integrate heading (wrap to (-pi, pi])
+		th_new = th + w_new * dt + sig_th * np.sqrt(dt) * np.random.randn(N)
+		th_new = (th_new + np.pi) % (2*np.pi) - np.pi
+
+		# 4) World-frame position update using rotated body velocities & accel
+		c, s = np.cos(th), np.sin(th)
+		vwx = c * vx_new - s * vy_new
+		vwy = s * vx_new + c * vy_new
+
+		awx = c * ax_new - s * ay_new
+		awy = s * ax_new + c * ay_new
+
+		x_new = x + vwx * dt + 0.5 * awx * dt*dt + sig_p * np.sqrt(dt) * np.random.randn(N)
+		y_new = y + vwy * dt + 0.5 * awy * dt*dt + sig_p * np.sqrt(dt) * np.random.randn(N)
+
+		# Pack
+		out[:, 0] = x_new
+		out[:, 1] = y_new
+		out[:, 2] = th_new
+		out[:, 3] = vx_new
+		out[:, 4] = vy_new
+		out[:, 5] = w_new
+		out[:, 6] = ax_new
+		out[:, 7] = ay_new
+		return out
 
 	return sample_acceleration_model_velocity
 

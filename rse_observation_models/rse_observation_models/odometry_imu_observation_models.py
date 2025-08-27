@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.stats
 
 def odometry_imu_observation_model_linearized():
 	def observation_function_h_v1(mu, u):
@@ -102,6 +103,7 @@ def odometry_imu_observation_model_with_acceleration_motion_model_3D():
 	
 	return observation_function_h
 
+'''
 def odometry_imu_observation_model_particles():
 	def observation_model(particles, z, Q):
 		# Calculate the error between the measured pose and each particle's pose
@@ -119,3 +121,99 @@ def odometry_imu_observation_model_particles():
 		return likelihood
 	
 	return observation_model
+'''
+
+def odometry_imu_observation_model_particles_1():
+    def observation_model(particles, z, Q):
+        z = z.reshape(-1)  # (7,)
+        obs_indices = [0, 1, 2, 2, 5, 6, 7]  # x, y, theta(odom), theta(imu), w, ax, ay
+
+        observed_particles = particles[:, obs_indices]
+        error = observed_particles - z
+
+        # Wrap every column that maps the angular state 'theta' (index 2 in the state)
+        theta_cols = np.where(np.array(obs_indices) == 2)[0]  # could be [2, 3]
+        for c in theta_cols:
+            error[:, c] = (error[:, c] + np.pi) % (2 * np.pi) - np.pi
+
+        # Now safe to evaluate with a 7x7 PD Q
+        likelihood = scipy.stats.multivariate_normal(
+            mean=np.zeros(7), cov=Q
+        ).pdf(error)
+
+        return likelihood
+    return observation_model
+
+
+def odometry_imu_observation_model_particles_2(beta=1.0, gate_mahal_sq=None):
+    """
+    Observation z = [x, y, theta_odom, theta_imu, w, a_x, a_y].
+    Particles state = [x, y, theta, v_x, v_y, w, a_x, a_y].
+    Q is 7x7 diagonal (pass as diag or full); use stds ~ realistic scales.
+
+    beta: temperature in (0,1]; <1 softens likelihood to reduce collapse.
+    gate_mahal_sq: if set (e.g., 25.0), downweights outliers via gating.
+    """
+
+    TWO_PI = 2.0 * np.pi
+    LOG2PI = np.log(2.0 * np.pi)
+
+    def normal_logpdf(residual, var):
+        # residual, var: arrays broadcastable to same shape
+        return -0.5 * (residual * residual / var + np.log(var) + LOG2PI)
+
+    def observation_model(particles, z, Q):
+        z = np.asarray(z, dtype=np.float64).reshape(-1)  # (7,)
+        assert z.shape[0] == 7, "z must be 7D"
+
+        # Build diagonal variances from Q (accept diag vector or full matrix)
+        if Q.ndim == 1:
+            var = np.asarray(Q, dtype=np.float64)
+        else:
+            var = np.asarray(np.diag(Q), dtype=np.float64)
+        assert var.shape[0] == 7, "Q must be 7x7 or diag len 7"
+        # Put a floor to avoid near-singular channels
+        var = np.maximum(var, 1e-6)
+
+        # Map state to measured components (same as your indices)
+        obs_indices = np.array([0, 1, 2, 2, 5, 6, 7], dtype=int)
+        Hx = particles[:, obs_indices]  # (N,7)
+
+        # Residuals
+        err = Hx - z  # (N,7)
+
+        # Wrap BOTH theta residuals (cols where obs_indices == 2)
+        theta_cols = np.where(obs_indices == 2)[0]
+        for c in theta_cols:
+            # wrap to (-pi, pi]
+            err[:, c] = (err[:, c] + np.pi) % (TWO_PI) - np.pi
+
+        # Per-dimension logpdf, then sum → total log-likelihood
+        # (Kinda like diag-cov MVN but explicit and stable)
+        # Broadcast var to (N,7)
+        var_row = var.reshape(1, 7)
+        logp_dim = normal_logpdf(err, var_row)  # (N,7)
+        logp = np.sum(logp_dim, axis=1)         # (N,)
+
+        # Optional mild tempering to reduce degeneracy (beta in (0,1])
+        if beta != 1.0:
+            logp = beta * logp
+
+        # Optional gating by Mahalanobis distance
+        # m^2 = sum(err^2 / var); gate e.g. at 5^2=25
+        if gate_mahal_sq is not None:
+            m2 = np.sum((err * err) / var_row, axis=1)
+            # Soft gate: subtract a penalty for very large m^2
+            # (Hard gate would set to -inf; soft is safer)
+            too_far = m2 > gate_mahal_sq
+            logp[too_far] += -0.5 * (m2[too_far] - gate_mahal_sq)
+
+        # Stabilize: subtract max before exp
+        logp -= np.max(logp)
+        w = np.exp(logp)  # unnormalized weights proportional to likelihood
+        # Return likelihoods; PF will normalize weights outside
+        return w
+
+    return observation_model
+
+
