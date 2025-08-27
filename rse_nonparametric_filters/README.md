@@ -23,7 +23,7 @@ colcon build --symlink-install
 
 ## The Particle Filter
 ### Article:
-[Robot State Estimation with the Particle Filter in ROS 2 - Part 1](https://medium.com/@kidargueta/recursive-state-estimation-with-kalman-filters-and-ros-2-b869d3775357?source=friends_link&sk=7bfc399c3dc05e1e2143933f8c98046d
+[Robot State Estimation with the Particle Filter in ROS 2 - Part 1](https://soulhackerslabs.com/robot-state-estimation-with-the-particle-filter-in-ros-2-part-1-e19bd286dfd6?source=friends_link&sk=f86b52432aec6d8864da46a9d7461f9c
 )
 
 ### Run the code:
